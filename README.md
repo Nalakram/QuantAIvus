@@ -127,7 +127,7 @@ See [StockPredictionApp Directory Structure.markdown](StockPredictionApp%20Direc
       pytest -v tests/python/test_ib_data_collection_2.py tests/python/test_ib_api.py
    ```
 ## Version History
-- 1.2 (2025-05-01): Added proprietary LICENSE.- 
+- 1.2 (2025-05-01): Added proprietary LICENSE. 
 - 1.1 (2025-04-30): Added config.py, logger.py, pytest.ini, run_tests.bat.
 - 1.0: Initial structure.
 > See [VERSION.md](VERSION.md) for details.
