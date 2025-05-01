@@ -206,3 +206,5 @@ The software, including source code, trained models, datasets, and modified libr
 No part of this project may be used, copied, modified, distributed, or exploited without explicit written permission from the author.
 
 See the LICENSE file for full terms.
+
+# QuantAIvus
