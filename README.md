@@ -1,6 +1,6 @@
-# QuantAIvus ![Version](https://img.shields.io/badge/version-1.2-blue) ![Python](https://img.shields.io/badge/python-3.9%2B-blue) ![License](https://img.shields.io/badge/license-Proprietary-red)
+# MarketMind ![Version](https://img.shields.io/badge/version-1.2-blue) ![Python](https://img.shields.io/badge/python-3.9%2B-blue) ![License](https://img.shields.io/badge/license-Proprietary-red)
 
-**StockPredictionApp** is a machine learning application for predicting stock prices using a hybrid Transformer model. It integrates data from Interactive Brokers API, financial statements, and economic indicators, with Python for data processing, C++ for inference, and Java for a GUI.
+**MarketMind** is a machine learning application for predicting stock prices using a hybrid Transformer model. It integrates data from Interactive Brokers API, financial statements, and economic indicators, with Python for data processing, C++ for inference, and Java for a GUI.
 
 ## Table of Contents
 - [Overview](#overview)
