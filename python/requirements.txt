@@ -1,0 +1,44 @@
+# Tested with Python 3.12
+
+# Core numerical and data libraries
+numpy>=2.0  # Constrained for tensorflow and pandas-ta
+pandas>=1.5
+scikit-learn>=1.2
+pandas-ta @ file:///C:/Users/Nalakram/Downloads/pandas-ta-main-local
+joblib>=1.2
+scipy>=1.10  # Added for potential statistical functions
+
+# Visualization
+matplotlib>=3.6
+seaborn>=0.12
+mplfinance==0.12.10b0
+
+# Financial data APIs and scraping
+yfinance>=0.2
+
+# API and model interfacing
+grpcio>=1.48.1
+grpcio-tools>=1.48.1
+pyyaml>=6.0
+ib_insync>=0.9.70  # Updated to allow newer versions
+
+# Machine learning and ONNX conversion
+tensorflow==2.19.0
+onnx==1.17.0
+tf2onnx @ file:///C:/Users/Nalakram/Downloads/tensorflow-onnx-1.17.0
+skl2onnx>=1.14
+onnxruntime>=1.14  # Added for Python-side inference
+
+# Model training and notebooks
+jupyter>=1.0
+pytest>=7.0
+pytest-cov>=4.0
+pytest-mock>=3.10
+nest-asyncio
+eventkit
+
+# Optional: For hyperparameter tuning
+keras-tuner>=1.4
+optuna>=3.1  # Uncommented as optionalib_insync==0.9.70 
+
+

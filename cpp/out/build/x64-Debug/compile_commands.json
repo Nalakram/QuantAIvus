@@ -1,0 +1,50 @@
+[
+{
+  "directory": "D:/Coding_Projects/StockPredictionApp/cpp/out/build/x64-Debug",
+  "command": "C:\\PROGRA~1\\MIB055~1\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1443~1.348\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DDEBUG -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\include -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\src /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd /W4 /EHsc /FoCMakeFiles\\StockPredictionApp.dir\\src\\api\\api_server.cpp.obj /FdCMakeFiles\\StockPredictionApp.dir\\ /FS -c D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\api\\api_server.cpp",
+  "file": "D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\api\\api_server.cpp",
+  "output": "CMakeFiles\\StockPredictionApp.dir\\src\\api\\api_server.cpp.obj"
+},
+{
+  "directory": "D:/Coding_Projects/StockPredictionApp/cpp/out/build/x64-Debug",
+  "command": "C:\\PROGRA~1\\MIB055~1\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1443~1.348\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DDEBUG -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\include -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\src /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd /W4 /EHsc /FoCMakeFiles\\StockPredictionApp.dir\\src\\data\\DataLoader.cpp.obj /FdCMakeFiles\\StockPredictionApp.dir\\ /FS -c D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\data\\DataLoader.cpp",
+  "file": "D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\data\\DataLoader.cpp",
+  "output": "CMakeFiles\\StockPredictionApp.dir\\src\\data\\DataLoader.cpp.obj"
+},
+{
+  "directory": "D:/Coding_Projects/StockPredictionApp/cpp/out/build/x64-Debug",
+  "command": "C:\\PROGRA~1\\MIB055~1\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1443~1.348\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DDEBUG -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\include -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\src /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd /W4 /EHsc /FoCMakeFiles\\StockPredictionApp.dir\\src\\data\\Preprocessor.cpp.obj /FdCMakeFiles\\StockPredictionApp.dir\\ /FS -c D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\data\\Preprocessor.cpp",
+  "file": "D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\data\\Preprocessor.cpp",
+  "output": "CMakeFiles\\StockPredictionApp.dir\\src\\data\\Preprocessor.cpp.obj"
+},
+{
+  "directory": "D:/Coding_Projects/StockPredictionApp/cpp/out/build/x64-Debug",
+  "command": "C:\\PROGRA~1\\MIB055~1\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1443~1.348\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DDEBUG -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\include -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\src /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd /W4 /EHsc /FoCMakeFiles\\StockPredictionApp.dir\\src\\inference\\ModelInference.cpp.obj /FdCMakeFiles\\StockPredictionApp.dir\\ /FS -c D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\inference\\ModelInference.cpp",
+  "file": "D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\inference\\ModelInference.cpp",
+  "output": "CMakeFiles\\StockPredictionApp.dir\\src\\inference\\ModelInference.cpp.obj"
+},
+{
+  "directory": "D:/Coding_Projects/StockPredictionApp/cpp/out/build/x64-Debug",
+  "command": "C:\\PROGRA~1\\MIB055~1\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1443~1.348\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DDEBUG -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\include -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\src /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd /W4 /EHsc /FoCMakeFiles\\StockPredictionApp.dir\\src\\inference\\FeatureEngineering.cpp.obj /FdCMakeFiles\\StockPredictionApp.dir\\ /FS -c D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\inference\\FeatureEngineering.cpp",
+  "file": "D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\inference\\FeatureEngineering.cpp",
+  "output": "CMakeFiles\\StockPredictionApp.dir\\src\\inference\\FeatureEngineering.cpp.obj"
+},
+{
+  "directory": "D:/Coding_Projects/StockPredictionApp/cpp/out/build/x64-Debug",
+  "command": "C:\\PROGRA~1\\MIB055~1\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1443~1.348\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DDEBUG -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\include -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\src /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd /W4 /EHsc /FoCMakeFiles\\StockPredictionApp.dir\\src\\backtesting\\Trainer.cpp.obj /FdCMakeFiles\\StockPredictionApp.dir\\ /FS -c D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\backtesting\\Trainer.cpp",
+  "file": "D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\backtesting\\Trainer.cpp",
+  "output": "CMakeFiles\\StockPredictionApp.dir\\src\\backtesting\\Trainer.cpp.obj"
+},
+{
+  "directory": "D:/Coding_Projects/StockPredictionApp/cpp/out/build/x64-Debug",
+  "command": "C:\\PROGRA~1\\MIB055~1\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1443~1.348\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DDEBUG -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\include -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\src /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd /W4 /EHsc /FoCMakeFiles\\StockPredictionApp.dir\\src\\backtesting\\Evaluator.cpp.obj /FdCMakeFiles\\StockPredictionApp.dir\\ /FS -c D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\backtesting\\Evaluator.cpp",
+  "file": "D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\backtesting\\Evaluator.cpp",
+  "output": "CMakeFiles\\StockPredictionApp.dir\\src\\backtesting\\Evaluator.cpp.obj"
+},
+{
+  "directory": "D:/Coding_Projects/StockPredictionApp/cpp/out/build/x64-Debug",
+  "command": "C:\\PROGRA~1\\MIB055~1\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1443~1.348\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DDEBUG -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\include -ID:\\Coding_Projects\\StockPredictionApp\\cpp\\src /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd /W4 /EHsc /FoCMakeFiles\\StockPredictionApp.dir\\src\\main.cpp.obj /FdCMakeFiles\\StockPredictionApp.dir\\ /FS -c D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\main.cpp",
+  "file": "D:\\Coding_Projects\\StockPredictionApp\\cpp\\src\\main.cpp",
+  "output": "CMakeFiles\\StockPredictionApp.dir\\src\\main.cpp.obj"
+}
+]
