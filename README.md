@@ -57,19 +57,19 @@ See [StockPredictionApp Directory Structure.markdown](StockPredictionApp%20Direc
 </details>
 
 ## Prerequisites
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| Python      | 3.9+    | Tested with 3.12 |
-| C++         | C++17   | Requires CUDA 12.9, CMake 3.20+ |
-| Java        | 17      | Maven for GUI |
-| Tools       | Git Bash, Anaconda Prompt, gRPC | For scripts and builds |
-| Hardware    | NVIDIA GPU (optional) | E.g., RTX 5090 for inference |
+| Requirement | Version                         | Notes                           |
+|-------------|---------------------------------|---------------------------------|
+| Python      | 3.9+                            | Tested with 3.12                |
+| C++         | C++17                           | Requires CUDA 12.9, CMake 3.20+ |
+| Java        | 17                              | Maven for GUI                   |
+| Tools       | Git Bash, Anaconda Prompt, gRPC | For scripts and builds          |
+| Hardware    | NVIDIA GPU (optional)           | E.g., RTX 5090 for inference    |
 
 ## Setup Instructions
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/Nalakram/QuantAIvus.git
-   cd StockPredictionApp
+   cd MarketMind
    ```
 2. **Set Up Python Environment:**
    ```bash
@@ -105,7 +105,7 @@ See [StockPredictionApp Directory Structure.markdown](StockPredictionApp%20Direc
       ```
    - On Git Bash:
       ```bash
-         cd /mnt/d/Coding_Projects/StockPredictionApp
+         cd /mnt/d/Coding_Projects/MarketMind
          source venv/Scripts/activate
          ./tests/run_tests.sh
       ```
