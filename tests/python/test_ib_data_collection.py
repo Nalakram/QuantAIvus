@@ -4,8 +4,8 @@ import pytest
 import pandas as pd
 from unittest.mock import Mock
 
-import python.data.ib_data_collection as ibdc
-from python.utils.exceptions import DataFetchError, IBConnectionError, NoDataError
+import srcPY.data.ib_data_collection as ibdc
+from srcPY.utils.exceptions import DataFetchError, IBConnectionError, NoDataError
 
 class TestBarsToDf:
     @pytest.mark.parametrize("mutate, error_msg", [
@@ -132,8 +132,8 @@ class TestFetchHistoricalData:
             )
 
     def test_invalid_symbol_raises(self, mock_ib, monkeypatch):
-        from python.utils.validators import validate_symbol
-        monkeypatch.setattr("python.utils.validators.validate_symbol", lambda x: (_ for _ in ()).throw(ValueError("Invalid symbol")))
+        from srcPY.utils.validators import validate_symbol
+        monkeypatch.setattr("srcPY.utils.validators.validate_symbol", lambda x: (_ for _ in ()).throw(ValueError("Invalid symbol")))
         with pytest.raises(ValueError, match="Invalid symbol"):
             ibdc.fetch_historical_data(
                 symbol="INVALID",
@@ -143,8 +143,8 @@ class TestFetchHistoricalData:
             )
 
     def test_missing_config(self, mock_ib, monkeypatch):
-        from python.utils.config import config
-        monkeypatch.setattr("python.utils.config.config", {})
+        from srcPY.utils.config import config
+        monkeypatch.setattr("srcPY.utils.config.config", {})
         with pytest.raises(KeyError):
             ibdc.fetch_historical_data(
                 symbol="AAPL",
@@ -227,8 +227,8 @@ class TestAsyncHelpers:
 
 class TestFetchMultiple:
     def test_fetch_multiple_historical_data(self, monkeypatch, mock_ib):
-        import python.data.ib_api
-        monkeypatch.setattr(python.data.ib_api, "ib_connection", lambda: mock_ib)
+        import srcPY.data.ib_api
+        monkeypatch.setattr(srcPY.data.ib_api, "ib_connection", lambda: mock_ib)
         async def async_fetch(*args, **kwargs):
             return ibdc._bars_to_df(ibdc.create_mock_bars(1))
         monkeypatch.setattr(ibdc, "_fetch_historical_async", async_fetch)
@@ -238,8 +238,8 @@ class TestFetchMultiple:
         assert len(results) == len(symbols)
 
     def test_fetch_multiple_historical_data_partial_failure(self, monkeypatch, mock_ib):
-        import python.data.ib_api
-        monkeypatch.setattr(python.data.ib_api, "ib_connection", lambda: mock_ib)
+        import srcPY.data.ib_api
+        monkeypatch.setattr(srcPY.data.ib_api, "ib_connection", lambda: mock_ib)
         async def async_success(*args, **kwargs):
             return pd.DataFrame(
                 {'open': [1], 'high': [2], 'low': [0], 'close': [1.5], 'volume': [10]},
@@ -257,8 +257,8 @@ class TestFetchMultiple:
 
     @pytest.mark.asyncio
     async def test_concurrency_limit(self, monkeypatch, mock_ib):
-        import python.data.ib_api
-        monkeypatch.setattr(python.data.ib_api, "ib_connection", lambda: mock_ib)
+        import srcPY.data.ib_api
+        monkeypatch.setattr(srcPY.data.ib_api, "ib_connection", lambda: mock_ib)
         active_tasks = []
         async def slow_fetch(*args, **kwargs):
             active_tasks.append(1)

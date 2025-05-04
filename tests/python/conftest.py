@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from unittest.mock import MagicMock, Mock
-import python.data.ib_data_collection as ibdc
+import srcPY.data.ib_data_collection as ibdc
 
 @pytest.fixture(autouse=True)
 def no_file_cache(monkeypatch, tmp_path):

@@ -1,2 +1,1 @@
-#!/bin/bash
-pytest tests/python/test_ib_data_collection_2.py tests/python/test_ib_api.py
+#!/bin/bash -v tests/python/test_ib_data_collection.py tests/python/test_ib_api.py tests/python/test_fundamental_data.py tests/python/test_market_data.py tests/python/test_transformer_model.py tests/python/test_hybrid_model.py tests/python/test_make_prediction.py
