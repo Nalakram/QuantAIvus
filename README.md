@@ -139,5 +139,5 @@ See [StockPredictionApp Directory Structure.markdown](StockPredictionApp%20Direc
       call tests\run_tests.bat
       ```
 ## License
-   This project is proprietary and not open source. All rights reserved. No part of this project may be used, copied, modified, or distributed without explicit written permission from the author. See  for details.
+   This project is proprietary and not open source. All rights reserved. No part of this project may be used, copied, modified, or distributed without explicit written permission from the author. See [LICENSE](LICENSE) for details.
 
