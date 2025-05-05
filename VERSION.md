@@ -1,5 +1,41 @@
 # Version History
 
+## Version 1.5.3 (2025-05-05)
+- **Updated Files**:
+  - Updated `pytest.ini` to include `asyncio_default_fixture_loop_scope = function` to resolve `PytestDeprecationWarning`.
+  - Updated `tests\run_tests.bat` to suppress `DeprecationWarning` from `eventkit`.
+  - Updated `tests\python\conftest.py` to use `from . import path_setup` for correct import resolution.
+  - Updated `README.md` to include `pytest-asyncio>=0.26.0` dependency, reflect version 1.5.3, and document test fixes.
+  - Updated `VERSION.md` to include entries for 1.5.1–1.5.3.
+- **Notes**:
+  - Fixed `PytestDeprecationWarning` by setting `asyncio_default_fixture_loop_scope` explicitly.
+  - Suppressed `eventkit` `DeprecationWarning` in `run_tests.bat` for cleaner test output.
+  - Resolved `ModuleNotFoundError: No module named 'path_setup'` by reverting to relative import in `conftest.py`.
+  - Confirmed all async tests in `test_ib_data_collection.py` and `test_ib_api.py` pass.
+  - Version incremented to 1.5.3 (PATCH) per Semantic Versioning for bug fixes.
+
+## Version 1.5.2 (2025-05-05)
+- **Updated Files**:
+  - Updated `tests\python\conftest.py` to mock `IB` class from `ib_insync` using `monkeypatch`, fixing test failures.
+  - Updated `tests\python\test_ib_data_collection.py` and `test_ib_api.py` to use correct assertions and async tests for `ib_connection()`.
+  - Updated `pytest.ini` to use `pythonpath = srcPy` instead of `python_paths` and enable `pytest-asyncio` with `markers = asyncio`.
+  - Updated `README.md` and `VERSION.md` to reflect test fixes and version 1.5.2.
+- **Notes**:
+  - Fixed `AssertionError` and `IBConnectionError` in `test_ib_connection_success` by mocking `IB` class instantiation.
+  - Fixed `DID NOT RAISE IBConnectionError` in `test_ib_connection_failure` by correctly setting `connect.side_effect`.
+  - Addressed `RuntimeWarning: coroutine 'mock_ib.<locals>.async_bars' was never awaited` by returning mock values directly.
+  - Added `pytest-asyncio` to support async tests.
+  - Version incremented to 1.5.2 (PATCH) per Semantic Versioning for bug fixes.
+
+## Version 1.5.1 (2025-05-05)
+- **Updated Files**:
+  - Updated `tests\run_tests.bat` and `tests\run_tests.sh` to use correct test paths (`tests\python\test_ib_data_collection.py`, `tests\python\test_ib_api.py`) instead of `tests\srcPy\`.
+  - Updated `README.md` to reflect corrected test paths and increment version to 1.5.1.
+  - Updated `VERSION.md` to include version 1.5.1 entry.
+- **Notes**:
+  - Fixed `ERROR: file or directory not found: tests\srcPy\test_ib_data_collection.py` by updating test paths in `run_tests.bat` and `run_tests.sh`.
+  - Version incremented to 1.5.1 (PATCH) per Semantic Versioning for bug fixes.
+
 ## Version 1.5.0 (2025-05-04)
 - **Updated Files**:
   - Updated `srcPy/requirements.txt` to include:
@@ -16,7 +52,7 @@
 ## Version 1.4.0 (2025-05-04)
 - **Updated Files**:
   - Renamed `python/` folder to `srcPy/` to avoid namespace conflicts with Python interpreter and distinguish from Java source.
-  - Updated `pytest.ini` to use `python_paths = srcPy`.
+  - Updated `pytest.ini` to use `pythonpath = srcPy`.
   - Updated imports in `tests\python\conftest.py` and test files to use `srcPy.` instead of `python.`.
   - Updated `run_tests.bat` and `run_tests.sh` to include only existing test files (`test_ib_data_collection.py`, `test_ib_api.py`) and comment out non-existent test files.
   - Updated `README.md`, `VERSION.md`, and `MarketMind Directory Structure.markdown` to document folder rename and project rename to `MarketMind`.
@@ -34,12 +70,12 @@
 
 ## Version 1.2.0 (2025-05-01)
 - **Added Files**:
-  - `LICENSE`: Added MIT License to define project licensing terms.
+  - `LICENSE`: Added Proprietary License to define project licensing terms.
 - **Updated Files**:
   - `README.md`: Replaced license placeholder with reference to `LICENSE` file.
   - `StockPredictionApp Directory Structure.markdown`: Added `LICENSE` to structure and updated version history.
 - **Notes**:
-  - Added `LICENSE` file to clarify usage and distribution terms under MIT License.
+  - Added `LICENSE` file to clarify usage and distribution terms under a proprietary License.
 
 ## Version 1.1.0 (2025-04-30)
 - **Added Files**:

@@ -2,9 +2,9 @@ from typing import Iterator
 from contextlib import contextmanager
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from ib_insync import IB
-from utils.config import config
-from utils.exceptions import IBConnectionError
-from utils.logger import logger
+from srcPy.utils.config import config
+from srcPy.utils.exceptions import IBConnectionError
+from srcPy.utils.logger import logger
 from pydantic import BaseModel
 
 class IBConfig(BaseModel):

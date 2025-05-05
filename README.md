@@ -92,22 +92,25 @@ MarketMind/
 │   └── config.yaml              # App configuration
 ├── models/saved_model.onnx      # Trained model
 ├── tests/                       # Test suite
+│   ├── __init__.py              # Makes tests/ a package
 │   ├── python/                  # Python unit tests
+│   │   ├── __init__.py
 │   │   ├── conftest.py
+│   │   ├── path_setup.py
 │   │   ├── test_ib_data_collection.py
 │   │   └── test_ib_api.py
 │   ├── cpp/                     # C++ unit tests
 │   │   ├── test_api_server.cpp
 │   │   ├── test_model.cpp
-│   │   └── test_data_loader.cpp
+│   │   ├── test_data_loader.cpp
 │   ├── java/test_StockPredictionGUI.java
 │   ├── integration/test_end_to_end.py
-│   ├── run_tests.sh             # Bash test script
-│   └── run_tests.bat            # Windows test script
-├── pytest.ini                   # Pytest configuration
-├── VERSION.md                   # Version history
-├── README.md                    # Project documentation
-└── LICENSE                      # MIT License
+│   ├── run_tests.sh
+│   └── run_tests.bat
+├── pytest.ini
+├── VERSION.md
+├── README.md
+└── LICENSE
 </pre>
 See [MarketMind Directory Structure.markdown](MarketMind Directory Structure.markdown) for details.
 </details>
@@ -133,6 +136,7 @@ See [MarketMind Directory Structure.markdown](MarketMind Directory Structure.mar
    python -m venv venv
    .\venv\Scripts\activate  # Windows
    pip install -r srcPy/requirements.txt
+   pip install pytest-asyncio
    ```
 3. **Install NLP Model**:
    ```bash
@@ -189,6 +193,9 @@ See [MarketMind Directory Structure.markdown](MarketMind Directory Structure.mar
   ```
 
 ## Version History
+- **1.5.3 (2025-05-05)**: Configured pytest-asyncio with asyncio_default_fixture_loop_scope = function to resolve PytestDeprecationWarning; updated run_tests.bat to suppress eventkit warning; fixed test imports.
+- **1.5.2 (2025-05-05)**: Fixed test failures in test_ib_data_collection.py and test_ib_api.py by mocking IB class; enabled pytest-asyncio.
+- **1.5.1 (2025-05-05)**: Fixed conftest.py import to use from . import path_setup; corrected test paths in run_tests.bat and run_tests.sh.
 - **1.5.0 (2025-05-04)**: Added `bertopic`, `spacy[transformers]`, and `shap` for NLP topic modeling and model explainability.
 - **1.4.0 (2025-05-04)**: Renamed `python/` to `srcPy/`; updated test scripts.
 - **1.3.0 (2025-05-01)**: Renamed project to `MarketMind`.
@@ -206,4 +213,5 @@ See [VERSION.md](VERSION.md) for details.
   ```
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under a proprietary license. Unauthorized copying, modification, distribution, or use of this software is strictly prohibited without prior written permission from the copyright holder.
+See the [LICENSE](LICENSE) file for full terms.
