@@ -1,4 +1,119 @@
-"* text=auto" 
-"*.sh text eol=lf" 
-"*.py text eol=lf" 
-"*.java text eol=lf" 
+# ==============================================
+# General Settings
+# ==============================================
+
+# Set default line endings and normalization
+* text=auto eol=lf
+
+# ==============================================
+# Source code files
+# ==============================================
+
+# Python files
+*.py text diff=python
+
+# C++ files
+*.cpp text diff=cpp
+*.hpp text diff=cpp
+*.c text diff=c
+*.h text diff=c
+*.cc text diff=cpp
+*.hh text diff=cpp
+*.cxx text diff=cpp
+*.hxx text diff=cpp
+*.inl text diff=cpp
+
+# Java files
+*.java text diff=java
+
+# Shell scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# YAML files
+*.yaml text
+*.yml text
+
+# JSON files
+*.json text diff=json
+
+# Markdown files
+*.md text diff=markdown
+
+# Jupyter Notebooks
+*.ipynb text diff=ipynb
+
+# ==============================================
+# Binary files
+# ==============================================
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.svg text
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.rar binary
+*.7z binary
+
+# Compiled binaries and libraries
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.lib binary
+*.class binary
+*.jar binary
+*.war binary
+*.ear binary
+*.obj binary
+*.o binary
+
+# Machine learning models (e.g., ONNX)
+*.onnx binary
+*.h5 binary
+*.bin binary
+
+# Databases and logs
+*.sqlite binary
+*.db binary
+*.parquet binary
+*.log text
+
+# Fonts
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+
+# ==============================================
+# Specific Project Overrides
+# ==============================================
+
+# Force Unix line endings for scripts
+*.sh eol=lf
+
+# Force Windows line endings for batch scripts
+*.bat eol=crlf
+*.cmd eol=crlf
+
+# Ignore differences in generated files
+*_pb2.py linguist-generated=true
+*_pb2_grpc.py linguist-generated=true
+
+# ==============================================
+# Large files handling (Git LFS)
+# ==============================================
+
+# Uncomment and use Git LFS if handling large files (optional)
+# *.bin filter=lfs diff=lfs merge=lfs -text
+# *.onnx filter=lfs diff=lfs merge=lfs -text
+# *.zip filter=lfs diff=lfs merge=lfs -text

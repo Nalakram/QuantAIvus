@@ -1,8 +1,222 @@
+# === Python ===
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
 *.pyo
-.env/
+*.pyd
+.env
+.venv
+env/
 venv/
-.vscode/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.coverage
+.cache
+.mypy_cache/
+.dmypy.json
+.pytest_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Virtual Environment
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder IDE
+.spyproject/
+
+# PyCharm
 .idea/
-.venv/
+
+# Visual Studio Code
+.vscode/
+
+# === C++ ===
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.gch
+*.pch
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.dylib
+*.so
+*.exe
+*.out
+*.app
+*.ilk
+*.exp
+*.pdb
+*.ipdb
+*.iobj
+*.idb
+
+# Build directories
+/build/
+/cmake-build-debug/
+/cmake-build-release/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Visual Studio
+*.VC.db
+*.VC.opendb
+.vs/
+
+# CLion
+cmake-build-*/
+
+# === Java ===
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+.classpath
+.project
+.settings/
+bin/
+build/
+target/
+
+# IntelliJ IDEA
+*.iml
+.idea/
+
+# Eclipse
+.metadata/
+tmp/
+*.tmp
+*.bak
+*.swp
+*.swo
+*.swm
+*~
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Maven
+log/
+target/
+
+# Gradle
+.gradle/
+build/
+
+# === Shell ===
+*.log
+*.tmp
+*.swp
+
+# === Windows ===
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config files
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows shortcuts
+*.lnk
+
+# Windows installer files
+*.msi
+*.cab
+*.msp
+
+# Windows logs
+*.log
+*.etl
+
+# Windows directory attributes file
+[Bb]ackup/
+[Rr]estore/
+System Volume Information/
+
+# === MacOS (Optional, for cross-platform compatibility) ===
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# === Logs and databases ===
+*.log
+*.sql
+*.sqlite
+
+# === IDE general ===
+*.sublime-workspace
+
+# === Sensitive info ===
+config.yml
+*.env
+*.secret
+*.key
+*.pem
+*.cer
+*.crt
+*.csr
+*.der
+*.p12
+*.pfx
+*.rsa
+*.pub
+*.gpg
+*.pgp
+credentials.json
+
+# === Project-specific ===
+/data/processed/*
+!/data/processed/.gitkeep
+/models/*
+!/models/.gitkeep
+
+# === Miscellaneous ===
+*.tmp
+*.bak
+*.orig
+*.save
+*.autosave
+*.cache
+
+# === Generated Documentation ===
+docs/_build/
+site/
+
+# === gRPC ===
+*_pb2.py
+*_pb2_grpc.py
+
+# === ONNX ===
+*.onnx
