@@ -9,6 +9,7 @@ from srcPy.utils.exceptions import IBConnectionError, DataFetchError
 from srcPy.utils.config import config
 from pathlib import Path
 from datetime import datetime
+import pytz
 
 class NoDataError(DataFetchError):
     """Raised when no data is returned for a valid symbol."""
@@ -24,45 +25,48 @@ def _get_cache_path(symbol: str) -> Path:
 def _bars_to_df(bars: List[BarData]) -> pd.DataFrame:
     """
     Convert IB BarData list to a pandas DataFrame with a datetime index.
-
-    Parameters:
-        bars: List of BarData returned by IB.reqHistoricalData.
-
-    Returns:
-        pd.DataFrame indexed by 'date' with OHLCV columns.
-
-    Raises:
-        DataFetchError: If DataFrame conversion fails or data is invalid.
     """
     try:
+        if not bars:
+            raise DataFetchError("Empty DataFrame")
+        
+        # Validate BarData attributes
+        required_fields = {'open', 'high', 'low', 'close', 'volume', 'barCount', 'average'}
+        for bar in bars:
+            missing = [field for field in required_fields if getattr(bar, field, None) is None]
+            if missing:
+                raise DataFetchError(f"Missing BarData fields: {', '.join(missing)}")
+        
         df = util.df(bars)
         if df.empty:
             raise DataFetchError("Empty DataFrame after conversion")
         
-        df['date'] = pd.to_datetime(df['date'])
+        df['date'] = pd.to_datetime(df['date'], utc=True)
         df = df.set_index('date')
         
-        # Validate expected columns
-        expected_columns = {'open', 'high', 'low', 'close', 'volume'}
-        if not expected_columns.issubset(df.columns):
-            raise DataFetchError(f"Missing expected columns: {expected_columns - set(df.columns)}")
+        if 'wap' in df.columns:
+            df = df.rename(columns={'wap': 'average'})
         
-        # Remove duplicates and sort
+        expected_columns = {'open', 'high', 'low', 'close', 'volume', 'barCount', 'average'}
+        if not expected_columns.issubset(df.columns):
+            raise DataFetchError(f"Missing expected columns: {', '.join(expected_columns - set(df.columns))}")
+        
         df = df[~df.index.duplicated(keep='last')].sort_index()
         
-        # Check for missing values
-        if df[['open', 'high', 'low', 'close', 'volume']].isna().any().any():
-            logger.warning("Missing values detected in DataFrame; filling with forward fill")
-            df = df.fillna(method='ffill')
+        if df[['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']].isna().any().any():
+            logger.warning("Missing values detected in DataFrame", action="filling with forward fill")
+            df = df.ffill()
         
-        return df
+        return df[['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']]
+    except IBConnectionError as e:
+        raise
     except Exception as e:
         raise DataFetchError(f"Failed to convert bars to DataFrame: {str(e)}") from e
 
 def create_mock_bars(n: int, start_date: str = "2025-01-01") -> List[BarData]:
     """Generate mock BarData for testing."""
     bars = []
-    base_date = pd.to_datetime(start_date)
+    base_date = pd.to_datetime(start_date, utc=True)
     for i in range(n):
         date = (base_date + pd.Timedelta(days=i)).strftime("%Y%m%d %H:%M:%S")
         bars.append(BarData(
@@ -91,27 +95,6 @@ async def _fetch_historical_async(
 ) -> pd.DataFrame:
     """
     Async helper to fetch historical data for a single symbol.
-
-    Parameters:
-        symbol: Stock ticker (e.g., 'AAPL').
-        end_date: End date for data.
-        duration: Duration string (e.g., '1 Y').
-        bar_size: Granularity (e.g., '1 day').
-        ib: IB instance.
-        sem: Semaphore to limit concurrent requests.
-        what_to_show: Data type (e.g., 'TRADES').
-        use_rth: Restrict to regular trading hours.
-        format_date: Date format for IB API.
-        use_cache: If True, use and update cache.
-
-    Returns:
-        pd.DataFrame with historical data.
-
-    Raises:
-        ValueError: If symbol or date validation fails.
-        IBConnectionError: For connection issues.
-        NoDataError: If no data is returned.
-        DataFetchError: For other errors.
     """
     validate_symbol(symbol)
     validate_date(end_date)
@@ -122,12 +105,24 @@ async def _fetch_historical_async(
     cached_df = None
 
     if use_cache and cache_path.exists():
-        cached_df = pd.read_parquet(cache_path)
-        if not cached_df.empty:
-            last_date = cached_df.index.max()
-            log.info(f"Found cached data up to {last_date}")
-            duration = "1 D"  # Fetch only new data
-            end_date = last_date.strftime("%Y%m%d %H:%M:%S")
+        try:
+            cached_df = pd.read_parquet(cache_path)
+            if not cached_df.empty and all(col in cached_df.columns for col in ['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']):
+                last_date = cached_df.index.max().tz_convert('UTC')
+                log.info("Found cached data", last_date=last_date)
+                # Adjust end_date only if fetching new data
+                end_ts = pd.to_datetime(end_date or datetime.now(), utc=True)
+                if end_ts > last_date:
+                    duration = "1 D"
+                    end_date = end_ts.strftime("%Y%m%d %H:%M:%S")
+                else:
+                    log.info("Cache covers requested period, returning cached data")
+                    return cached_df
+            else:
+                cached_df = None
+        except Exception as e:
+            log.warning("Failed to read cache file", path=str(cache_path), error=str(e))
+            cached_df = None
 
     try:
         async with sem:
@@ -143,18 +138,21 @@ async def _fetch_historical_async(
 
         if not bars:
             if cached_df is not None and not cached_df.empty:
-                log.info("No new data; returning cached data")
+                log.info("No new data, returning cached data")
                 return cached_df
             raise NoDataError(symbol)
 
         df = _bars_to_df(bars)
         if cached_df is not None and not cached_df.empty:
-            df = pd.concat([cached_df, df]).sort_index().drop_duplicates()
+            df = pd.concat([cached_df, df], axis=0).sort_index().drop_duplicates(keep='last')
         log.info("Successfully fetched historical data", rows=len(df))
 
         if use_cache:
-            df.to_parquet(cache_path)
-            log.info(f"Saved data to cache: {cache_path}")
+            try:
+                df.to_parquet(cache_path, engine='pyarrow')
+                log.info("Saved data to cache", path=str(cache_path))
+            except Exception as e:
+                log.warning("Failed to save cache file", path=str(cache_path), error=str(e))
 
         return df
 
@@ -162,7 +160,7 @@ async def _fetch_historical_async(
         log.error("IB connection failed", error=str(e))
         raise
     except NoDataError:
-        log.error("No data error")
+        log.error("No data returned")
         raise
     except Exception as e:
         log.error("Unexpected error during async data fetch", error=str(e))
@@ -181,26 +179,6 @@ def fetch_historical_data(
 ) -> pd.DataFrame:
     """
     Fetches historical stock data for a single symbol from Interactive Brokers.
-
-    Parameters:
-        symbol: Stock ticker (e.g., 'AAPL').
-        end_date: End date for data (format 'YYYYMMDD HH:MM:SS'; empty for current time).
-        duration: Duration string (e.g., '1 Y', '6 M').
-        bar_size: Granularity (e.g., '1 day', '5 mins').
-        ib_client: Optional injected IB instance for testing.
-        use_cache: If True, check cache before fetching and store results.
-        what_to_show: Data type (e.g., 'TRADES', 'BID_ASK').
-        use_rth: Restrict to regular trading hours.
-        format_date: Date format for IB API (1 for string, 2 for Unix timestamp).
-
-    Returns:
-        Historical data as a pandas DataFrame indexed by timestamp.
-
-    Raises:
-        ValueError: If symbol or date validation fails.
-        IBConnectionError: For connection-level issues.
-        NoDataError: If IB returns no bars for the symbol.
-        DataFetchError: For any other fetch or transformation errors.
     """
     validate_symbol(symbol)
     validate_date(end_date)
@@ -211,19 +189,31 @@ def fetch_historical_data(
     cached_df = None
 
     if use_cache and cache_path.exists():
-        cached_df = pd.read_parquet(cache_path)
-        if not cached_df.empty:
-            last_date = cached_df.index.max()
-            log.info(f"Found cached data up to {last_date}")
-            duration = "1 D"  # Fetch only new data
-            end_date = last_date.strftime("%Y%m%d %H:%M:%S")
+        try:
+            cached_df = pd.read_parquet(cache_path)
+            if not cached_df.empty and all(col in cached_df.columns for col in ['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']):
+                last_date = cached_df.index.max().tz_convert('UTC')
+                log.info("Found cached data", last_date=last_date)
+                # Adjust end_date only if fetching new data
+                end_ts = pd.to_datetime(end_date or datetime.now(), utc=True)
+                if end_ts > last_date:
+                    duration = "1 D"
+                    end_date = end_ts.strftime("%Y%m%d %H:%M:%S")
+                else:
+                    log.info("Cache covers requested period, skipping fetch")
+                    return cached_df
+            else:
+                cached_df = None
+        except Exception as e:
+            log.warning("Failed to read cache file", path=str(cache_path), error=str(e))
+            cached_df = None
 
     try:
         if ib_client:
             ib = ib_client
             own_client = False
         else:
-            from ib_api import ib_connection
+            from srcPy.data.ib_api import ib_connection
             own_client = True
 
         if own_client:
@@ -250,18 +240,21 @@ def fetch_historical_data(
 
         if not bars:
             if cached_df is not None and not cached_df.empty:
-                log.info("No new data; returning cached data")
+                log.info("No new data, returning cached data")
                 return cached_df
             raise NoDataError(symbol)
 
         df = _bars_to_df(bars)
         if cached_df is not None and not cached_df.empty:
-            df = pd.concat([cached_df, df]).sort_index().drop_duplicates()
+            df = pd.concat([cached_df, df], axis=0).sort_index().drop_duplicates(keep='last')
         log.info("Successfully fetched historical data", rows=len(df))
 
         if use_cache:
-            df.to_parquet(cache_path)
-            log.info(f"Saved data to cache: {cache_path}")
+            try:
+                df.to_parquet(cache_path, engine='pyarrow')
+                log.info("Saved data to cache", path=str(cache_path))
+            except Exception as e:
+                log.warning("Failed to save cache file", path=str(cache_path), error=str(e))
 
         return df
 
@@ -269,7 +262,7 @@ def fetch_historical_data(
         log.error("IB connection failed", error=str(e))
         raise
     except NoDataError:
-        log.error("No data error")
+        log.error("No data returned")
         raise
     except Exception as e:
         log.error("Unexpected error during data fetch", error=str(e))
@@ -287,23 +280,10 @@ async def fetch_multiple_historical_data(
 ) -> Dict[str, pd.DataFrame]:
     """
     Fetch historical data for multiple symbols concurrently, skipping failures.
-
-    Parameters:
-        symbols: List of tickers to fetch.
-        end_date: End date string for all symbols.
-        duration: Duration string for all symbols.
-        bar_size: Bar size for all symbols.
-        use_cache: If True, use and update cache.
-        what_to_show: Data type (e.g., 'TRADES').
-        use_rth: Restrict to regular trading hours.
-        format_date: Date format for IB API.
-
-    Returns:
-        Mapping of symbol to its DataFrame. Symbols with errors are omitted.
     """
-    from ib_api import ib_connection
+    from srcPy.data.ib_api import ib_connection
     data: Dict[str, pd.DataFrame] = {}
-    sem = Semaphore(5)  # Limit to 5 concurrent requests to respect IB rate limits
+    sem = Semaphore(5)
 
     async def fetch_all():
         with ib_connection() as ib:
@@ -319,7 +299,7 @@ async def fetch_multiple_historical_data(
                 if isinstance(result, pd.DataFrame):
                     data[symbol] = result
                 elif isinstance(result, Exception):
-                    logger.warning(f"Failed to fetch {symbol}", error=str(result))
+                    logger.warning("Failed to fetch data", symbol=symbol, error=str(result))
 
-    asyncio.run(fetch_all())
+    await fetch_all()
     return data

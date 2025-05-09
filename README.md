@@ -1,6 +1,6 @@
-# MarketMind ![Version](https://img.shields.io/badge/version-1.5.0-blue) ![Python](https://img.shields.io/badge/python-3.9%2B-blue) ![License](https://img.shields.io/badge/license-Proprietary-red)
+# MarketMind ![Version](https://img.shields.io/badge/version-1.6.0-blue) ![Python](https://img.shields.io/badge/python-3.9%2B-blue) ![License](https://img.shields.io/badge/license-Proprietary-red)
 
-**MarketMind** is a machine learning application for predicting stock prices using a hybrid Transformer model. It integrates data from Interactive Brokers API, financial statements, economic indicators, and textual data (e.g., news, earnings calls) for enhanced predictions. The project combines Python for data processing and model training, C++ for high-performance inference, and Java for a GUI frontend.
+**MarketMind** is a machine learning application for predicting stock prices, optimized for high-frequency trading (HFT). It uses a hybrid Transformer model with ensemble techniques, integrating diverse data sources such as Interactive Brokers API, financial statements, economic indicators, and alternative data (e.g., social media, ESG, weather). The project combines Python for data processing and model training, C++ for high-performance inference, and Java for a GUI frontend.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -15,104 +15,43 @@
 - [License](#license)
 
 ## Overview
-MarketMind predicts stock prices using a Transformer-based model with optional LSTM/TCN layers, leveraging:
+MarketMind predicts stock prices using a Transformer-based model with optional LSTM/TCN layers, enhanced by ensemble methods (e.g., XGBoost, ARIMA). It leverages:
 - **Python**: Data pipeline, model training, and NLP processing with TensorFlow, BERTopic, and spaCy.
-- **C++**: High-performance inference with ONNX Runtime and CUDA.
+- **C++**: High-performance inference with ONNX Runtime and CUDA for sub-millisecond latency.
 - **Java**: Swing-based GUI for displaying predictions and metrics.
 - **Explainability**: SHAP for feature importance analysis.
+- **Trading Automation**: Automated trade execution via Interactive Brokers API with risk management.
 
-The project uses gRPC for communication between components and includes comprehensive tests for reliability.
+The project uses gRPC for communication and includes comprehensive tests for reliability.
 
 ## Features
-- 📊 **Data Pipeline**: Fetches real-time/historical stock data, financial metrics, and economic indicators via `ib_insync` and `yfinance`.
+- 📊 **Data Pipeline**: Fetches real-time/historical stock data, financial metrics, economic indicators, and alternative data (social media, supply chain, ESG) via `ib_insync`, `yfinance`, and custom APIs.
 - 📜 **NLP Topic Modeling**: Analyzes financial texts (e.g., news, earnings calls) using `bertopic` and `spacy[transformers]` for sentiment and topic insights.
-- 🤖 **Machine Learning**: Hybrid Transformer model with LSTM/TCN layers, trained with TensorFlow and exported to ONNX.
-- ⚡ **Inference**: Optimized C++ backend for NVIDIA GPUs (CUDA 12.9).
+- 🤖 **Machine Learning**: Hybrid Transformer model with LSTM/TCN layers, ensemble methods (XGBoost, ARIMA), and proprietary layers, trained with TensorFlow and exported to ONNX.
+- ⚡ **Inference**: Optimized C++ backend for NVIDIA GPUs (CUDA 12.9) with sub-millisecond latency for HFT.
 - 🖼️ **GUI**: Java Swing interface for visualizing predictions and metrics.
 - 🔍 **Explainability**: SHAP-based feature importance for model transparency.
 - 🧪 **Testing**: Unit and integration tests with `pytest`, Google Test, and JUnit.
+- 💹 **Trading Strategies**: Statistical arbitrage and momentum-based strategies for automated HFT.
+- 🛡️ **Risk Management**: Kelly criterion, stop-losses, portfolio optimization, and drawdown monitoring.
+- 🚀 **Deployment**: Cloud GPU support (AWS EC2) and InfluxDB for time-series data storage.
 
 ## Project Structure
 <details>
 <summary>Click to expand</summary>
 <pre>
-MarketMind/
-├── srcPy/                       # Python 3.9+ scripts for data pipeline, ML, and NLP
-│   ├── __init__.py              # Makes srcPy/ a package
-│   ├── data/                    # Data loading and preprocessing
-│   │   ├── __init__.py
-│   │   ├── ib_api.py            # IB API connection
-│   │   ├── ib_data_collection.py# Historical/real-time stock data
-│   │   ├── fundamental_data.py  # Financial metrics
-│   │   ├── market_data.py       # Economic indicators
-│   │   ├── specialized_data.py  # Insider trading/ESG data
-│   │   └── data_loader.py       # Centralized data fetching
-│   ├── models/                  # ML model training
-│   │   ├── transformer_model.py # Transformer architecture
-│   │   ├── lstm_model.py        # LSTM layer
-│   │   ├── tcn_model.py         # TCN layer
-│   │   ├── hybrid_model.py      # Transformer + LSTM/TCN
-│   │   ├── train_model.py       # Model training
-│   │   └── evaluate_model.py    # Model evaluation
-│   ├── predict/                 # Prediction logic
-│   │   ├── __init__.py          # Makes predict/ a package
-│   │   └── make_prediction.py   # gRPC-exposed predictions
-│   ├── utils/                   # Utility functions
-│   │   ├── __init__.py
-│   │   ├── config.py           # IB API settings
-│   │   ├── logger.py           # Logging configuration
-│   │   ├── validators.py       # Input validation
-│   │   └── exceptions.py       # Custom exceptions
-│   └── requirements.txt         # Python dependencies
-├── cpp/                         # C++17 backend for inference
-│   ├── include/                 # Header files
-│   │   ├── api_server.h
-│   │   ├── model.h
-│   │   ├── data_loader.h
-│   │   └── utils.h
-│   ├── src/                     # Source files
-│   │   ├── api_server.cpp
-│   │   ├── model.cpp
-│   │   ├── data_loader.cpp
-│   │   ├── main.cpp
-│   │   └── utils.cpp
-│   └── CMakeLists.txt           # Build configuration
-├── java/                        # Java 17 GUI frontend
-│   ├── src/com/example/
-│   │   ├── gui/StockPredictionGUI.java
-│   │   └── grpc/BackendClient.java
-│   └── pom.xml                  # Maven configuration
-├── data/                        # Data storage
-│   ├── raw/                     # Unprocessed data
-│   │   ├── historical_prices_ib.csv
-│   │   ├── financial_statements.csv
-│   │   ├── economic_indicators.csv
-│   │   └── specialized_data.csv
-│   ├── processed/processed_data.bin
-│   └── config.yaml              # App configuration
-├── models/saved_model.onnx      # Trained model
-├── tests/                       # Test suite
-│   ├── __init__.py              # Makes tests/ a package
-│   ├── python/                  # Python unit tests
-│   │   ├── __init__.py
-│   │   ├── conftest.py
-│   │   ├── path_setup.py
-│   │   ├── test_ib_data_collection.py
-│   │   └── test_ib_api.py
-│   ├── cpp/                     # C++ unit tests
-│   │   ├── test_api_server.cpp
-│   │   ├── test_model.cpp
-│   │   ├── test_data_loader.cpp
-│   ├── java/test_StockPredictionGUI.java
-│   ├── integration/test_end_to_end.py
-│   ├── run_tests.sh
-│   └── run_tests.bat
-├── pytest.ini
-├── VERSION.md
-├── README.md
-└── LICENSE
+MarketMind is organized into modular directories for Python, C++, and Java components, with dedicated folders for data, models, tests, and deployment configurations. Key components include:
+
+- **`srcPy/`**: Python scripts for data pipeline (`data/`), machine learning models (`models/`), trading strategies (`strategies/`), predictions (`predict/`), and utilities (`utils/`), supporting data fetching, model training, and automated trading.
+- **`cpp/`**: C++17 backend for high-performance inference using ONNX Runtime and CUDA, optimized for sub-millisecond latency in HFT.
+- **`java/`**: Java 17 GUI frontend with Swing for visualizing predictions and metrics, integrated via gRPC.
+- **`data/`**: Stores raw and processed data, including stock prices, financial metrics, and alternative data, with InfluxDB integration.
+- **`models/`**: Contains trained models in ONNX format.
+- **`tests/`**: Comprehensive test suite with Python (`pytest`), C++ (Google Test), and Java (JUnit) tests, including unit and integration tests.
+- **`deployment/`**: Configurations for cloud GPU deployment and InfluxDB time-series storage.
+- **`docs/`**: Team documentation, including onboarding guidelines.
 </pre>
-See [MarketMind Directory Structure.markdown](MarketMind Directory Structure.markdown) for details.
+For a detailed directory structure, see [MarketMind Directory Structure.md](MarketMind Directory Structure.md).
 </details>
 
 ## Prerequisites
@@ -172,7 +111,7 @@ See [MarketMind Directory Structure.markdown](MarketMind Directory Structure.mar
   source venv/Scripts/activate
   ./tests/run_tests.sh
   ```
-- Tests include `test_ib_data_collection.py` and `test_ib_api.py`.
+- Tests include `test_ib_data_collection.py`, `test_ib_api.py`, `test_alternative_data.py`, `test_ensemble_model.py`, `test_trading.py`, and `test_risk_management.py`.
 
 ### C++ and Java Tests
 - C++: Run Google Test suite in `cpp/build`.
@@ -181,7 +120,7 @@ See [MarketMind Directory Structure.markdown](MarketMind Directory Structure.mar
 ## Troubleshooting
 - **ModuleNotFoundError: No module named 'srcPy'**:
   - Ensure `pytest.ini` includes `python_paths = srcPy`.
-  - Verify `__init__.py` in `srcPy/`, `srcPy/data/`, `srcPy/utils/`, and `srcPy/predict/`.
+  - Verify `__init__.py` in `srcPy/`, `srcPy/data/`, `srcPy/utils/`, `srcPy/predict/`, and `srcPy/strategies/`.
 - **Dependency Issues**:
   ```bash
   pip list | findstr "ib-insync pandas pytest numpy nest-asyncio eventkit bertopic spacy shap"
@@ -193,6 +132,8 @@ See [MarketMind Directory Structure.markdown](MarketMind Directory Structure.mar
   ```
 
 ## Version History
+- **1.6.0 (2025-05-09)**: Added alternative data, ensemble models, trading strategies, risk management, backtesting, simulation, and deployment configurations. Updated project structure for HFT.
+- **1.5.4 (2025-05-06)**: Fixed test failures in `test_ib_data_collection.py` by correcting `NoDataError` imports and `TestAsyncHelpers` test placement. Resolved `tensorflow-onnx` test discovery errors by setting `testpaths = tests/python` in `pytest.ini`. Ensured all 26 tests pass.
 - **1.5.3 (2025-05-05)**: Configured pytest-asyncio with asyncio_default_fixture_loop_scope = function to resolve PytestDeprecationWarning; updated run_tests.bat to suppress eventkit warning; fixed test imports.
 - **1.5.2 (2025-05-05)**: Fixed test failures in test_ib_data_collection.py and test_ib_api.py by mocking IB class; enabled pytest-asyncio.
 - **1.5.1 (2025-05-05)**: Fixed conftest.py import to use from . import path_setup; corrected test paths in run_tests.bat and run_tests.sh.

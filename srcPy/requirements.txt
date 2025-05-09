@@ -52,4 +52,13 @@ eventkit
 keras-tuner>=1.4
 optuna>=3.1  # Uncommented as optionalib_insync==0.9.70 
 
-
+# Additional dependencies for new features
+xgboost>=2.1.0
+statsmodels>=0.14.2
+ta>=0.11.0
+PyPortfolioOpt>=1.5.5
+backtrader>=1.9.78.123
+hmmlearn>=0.3.2
+tensorflow-gnn>=0.6.0
+tensorflow-probability>=0.24.0
+arch>=7.0.0

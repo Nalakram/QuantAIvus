@@ -34,14 +34,14 @@ def ib_connection() -> Iterator[IB]:
             stop=stop_after_attempt(3),
             wait=wait_exponential(min=1, max=10),
             retry=retry_if_exception_type(ConnectionError),
-            before_sleep=lambda retry_state: logger.info(f"Retrying connection: attempt {retry_state.attempt_number}")
+            before_sleep=lambda retry_state: logger.info("Retrying connection", attempt=retry_state.attempt_number)
         )
         def _connect():
             ib.connect(ib_cfg.host, ib_cfg.port, ib_cfg.client_id)
         _connect()
         yield ib
     except Exception as e:
-        logger.error(f"Failed to connect to IB after retries: {str(e)}")
+        logger.error("Failed to connect to IB after retries", error=str(e))
         raise IBConnectionError("Failed to connect to IB") from e
     finally:
         ib.disconnect()

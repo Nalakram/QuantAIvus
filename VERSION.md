@@ -1,5 +1,68 @@
 # Version History
 
+## Version 1.6.0 (2025-05-06)
+- **Added Files**:
+  - `srcPy/data/alternative_data.py`: Fetches alternative data (social media, supply chain, ESG, insider trading).
+  - `srcPy/data/data_cleaning.py`: Implements outlier detection, Kalman filtering, and normalization.
+  - `srcPy/models/ensemble/ensemble_model.py`: Combines Transformer with XGBoost and ARIMA for ensemble predictions.
+  - `srcPy/models/custom_models.py`: Experiments with proprietary Transformer layers for financial data.
+  - `srcPy/strategies/stat_arb.py`: Implements statistical arbitrage trading strategies.
+  - `srcPy/strategies/momentum.py`: Implements momentum-based trading strategies.
+  - `srcPy/utils/risk_management.py`: Adds Kelly criterion, stop-losses, and drawdown monitoring.
+  - `srcPy/utils/portfolio.py`: Implements portfolio optimization and capital limits.
+  - `srcPy/trading.py`: Automates trade execution via Interactive Brokers API.
+  - `srcPy/backtesting.py`: Supports extensive historical simulations.
+  - `srcPy/simulation.py`: Manages paper and live trading simulations.
+  - `tests/python/test_alternative_data.py`: Tests alternative data fetching.
+  - `tests/python/test_ensemble_model.py`: Tests ensemble model accuracy.
+  - `tests/python/test_trading.py`: Tests automated trading logic.
+  - `tests/python/test_risk_management.py`: Tests risk management functions.
+  - `deployment/influxdb_config.yaml`: Configures InfluxDB for time-series storage.
+  - `deployment/docker-compose.yml`: Configures cloud GPU deployment.
+  - `docs/onboarding.md`: Provides collaboration and setup guide.
+- **Added Directories**:
+  - `srcPy/models/ensemble/`: Directory for ensemble model scripts.
+  - `srcPy/strategies/`: Directory for trading strategy scripts.
+  - `deployment/`: Directory for deployment configurations.
+  - `docs/`: Directory for team documentation.
+- **Updated Files**:
+  - `srcPy/ib_data_collection.py`: Extended to support high-frequency intraday data.
+  - `srcPy/data_loader.py`: Integrated with InfluxDB for time-series storage.
+  - `srcPy/train_model.py`: Added support for short-term prediction horizons and online learning.
+  - `srcPy/evaluate_model.py`: Enhanced with statistical focus using SHAP.
+  - `cpp/CMakeLists.txt`: Added optimization flags for HFT inference.
+  - `README.md`: Updated project structure and feature descriptions.
+  - `MarketMind Directory Structure.md`: Reflected new files and directories.
+  - `VERSION.md`: Added entry for version 1.6.0.
+- **Notes**:
+  - Enhanced project for high-frequency trading with automated execution, risk management, and alternative data.
+  - Replaced `processed_data.bin` with InfluxDB for efficient data handling.
+  - Added ensemble modeling and proprietary layers to improve prediction accuracy.
+  - Version incremented to 1.6.0 (MINOR) per Semantic Versioning for new functionality.
+
+## Version 1.5.4 (2025-05-09)
+- **Updated Files**:
+  - Updated `tests/python/test_ib_data_collection.py`:
+    - Fixed `test_no_data_no_cache` by explicitly importing `NoDataError` from `srcPy.data.ib_data_collection` to resolve type mismatch in `pytest.raises`.
+    - Moved `test_fetch_historical_async_no_data` into `TestAsyncHelpers` class and corrected indentation of `test_fetch_historical_async_caches_and_returns`, `test_fetch_historical_async_cache_update`, and `test_fetch_historical_async_timeout` to ensure proper test discovery.
+    - Ensured all async tests in `TestAsyncHelpers` have `@pytest.mark.asyncio`.
+  - Updated `pytest.ini`:
+    - Added `testpaths = tests/python` to restrict test discovery to `MarketMind` tests, preventing errors from unrelated directories (e.g., `tensorflow-onnx`).
+    - Set `asyncio_mode = auto` to improve async test discovery reliability.
+  - Updated `srcPy/requirements.txt` to include `pyarrow` for parquet file support in `ib_data_collection.py`.
+  - Updated `README.md` to reflect version 1.5.4 and document test fixes.
+  - Updated `VERSION.md` to include this version entry.
+- **Dependencies**:
+  - Removed `pytest-structlog==1.1` dependency due to potential interference with `pytest.raises` exception handling.
+  - Confirmed compatibility with `pytest==8.3.5`, `pytest-asyncio==0.26.0`, `pytest-mock==3.14.0`, `pytest-cov==6.1.1`, `pandas`, `pyarrow`, `ib_insync==0.9.70`, `structlog`, and existing `srcPy/requirements.txt` dependencies.
+- **Notes**:
+  - Resolved `ModuleNotFoundError` for `parameterized` and `timeout_decorator` by excluding `tensorflow-onnx` tests via `testpaths`.
+  - Fixed test discovery issue for `test_fetch_historical_async_no_data` by placing it in `TestAsyncHelpers` and ensuring `asyncio_mode = auto`.
+  - Addressed `NoDataError` import mismatch in `test_no_data_no_cache` and `test_fetch_historical_async_no_data`, ensuring `pytest.raises` correctly matches the exception type.
+  - Ensured all 26 tests (23 from `test_ib_data_collection.py`, 3 from `test_ib_api.py`) pass with coverage reporting.
+  - Improved test reliability by removing `pytest-structlog` and using standard `structlog` logging.
+  - Version incremented to 1.5.4 (PATCH) per Semantic Versioning for bug fixes and test configuration improvements.
+
 ## Version 1.5.3 (2025-05-05)
 - **Updated Files**:
   - Updated `pytest.ini` to include `asyncio_default_fixture_loop_scope = function` to resolve `PytestDeprecationWarning`.
