@@ -197,11 +197,11 @@ docs/: Documentation for maintainability.
 
 Recommendations
 
-Navigation System: Use RootLayout.fxml with a BorderPane to load FXML views into its center, enabling efficient view switching (Stack Overflow).
-Build Integration: Integrate C++ builds into Maven using nar-maven-plugin to streamline development (Stack Overflow).
-Model Management: Use a singleton or context class to share models like StockData across controllers (Reddit).
-Documentation: Maintain detailed guides in docs/ for Java, Python, and C++ components (Stack Overflow).
-Package Size: Monitor ui.controllers for bloat; split into subpackages (e.g., ui.controllers.auth) if needed (Reintech).
-Dependency Management: Ensure unidirectional dependencies using interfaces or dependency injection (Spring).
-Lightweight Controllers: Delegate business logic to services for a responsive GUI (Oracle).
+Navigation System: Use RootLayout.fxml with a BorderPane to load FXML views into its center, enabling efficient view switching.
+Build Integration: Integrate C++ builds into Maven using nar-maven-plugin to streamline development.
+Model Management: Use a singleton or context class to share models like StockData across controllers.
+Documentation: Maintain detailed guides in docs/ for Java, Python, and C++ components.
+Package Size: Monitor ui.controllers for bloat; split into subpackages (e.g., ui.controllers.auth) if needed.
+Dependency Management: Ensure unidirectional dependencies using interfaces or dependency injection.
+Lightweight Controllers: Delegate business logic to services for a responsive GUI.
 
