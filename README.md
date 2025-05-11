@@ -1,4 +1,4 @@
-# MarketMind ![Version](https://img.shields.io/badge/version-1.6.0-blue) ![Python](https://img.shields.io/badge/python-3.9%2B-blue) ![License](https://img.shields.io/badge/license-Proprietary-red)
+# MarketMind ![Version](https://img.shields.io/badge/version-1.6.0-blue) ![Python](https://img.shields.io/badge/python-3.9%2B-blue) ![License](https://img.shields.io/badge/license-Proprietary-red) https://img.shields.io/github/actions/workflow/status/your-username/MarketMind/ci.yml?branch=main) [![Coverage Status](https://img.shields.io/codecov/c/github/Nalakram/QuantAIvus?label=Coverage)](https://codecov.io/gh/Nalakram/QuantAIvus) ![Java Version](https://img.shields.io/badge/Java-21-blue?style=flat-square&logo=openjdk&logoColor=white) ![OS Support](https://img.shields.io/badge/OS-Windows-informational?style=flat&logo=Windows&logoColor=white&color=blue [![Docs](https://img.shields.io/badge/docs-readthedocs-blue)](https://your-docs-site) ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
 **MarketMind** is a machine learning application for predicting stock prices, optimized for high-frequency trading (HFT). It uses a hybrid Transformer model with ensemble techniques, integrating diverse data sources such as Interactive Brokers API, financial statements, economic indicators, and alternative data (e.g., social media, ESG, weather). The project combines Python for data processing and model training, C++ for high-performance inference, and Java for a GUI frontend.
 
@@ -44,7 +44,7 @@ MarketMind is organized into modular directories for Python, C++, and Java compo
 
 - **`srcPy/`**: Python scripts for data pipeline (`data/`), machine learning models (`models/`), trading strategies (`strategies/`), predictions (`predict/`), and utilities (`utils/`), supporting data fetching, model training, and automated trading.
 - **`cpp/`**: C++17 backend for high-performance inference using ONNX Runtime and CUDA, optimized for sub-millisecond latency in HFT.
-- **`java/`**: Java 17 GUI frontend with Swing for visualizing predictions and metrics, integrated via gRPC.
+- **`java/`**: Java 21 GUI frontend with Swing for visualizing predictions and metrics, integrated via gRPC.
 - **`data/`**: Stores raw and processed data, including stock prices, financial metrics, and alternative data, with InfluxDB integration.
 - **`models/`**: Contains trained models in ONNX format.
 - **`tests/`**: Comprehensive test suite with Python (`pytest`), C++ (Google Test), and Java (JUnit) tests, including unit and integration tests.
@@ -59,7 +59,7 @@ For a detailed directory structure, see [MarketMind Directory Structure.md](Mark
 |-------------|---------------------------------|---------------------------------|
 | Python      | 3.9+                            | Tested with 3.12                |
 | C++         | C++17                           | Requires CUDA 12.9, CMake 3.20+ |
-| Java        | 17                              | Maven for GUI                   |
+| Java        | 21                              | Maven for GUI                   |
 | Tools       | Git Bash, Anaconda Prompt, gRPC | For scripts and builds          |
 | Hardware    | NVIDIA GPU (optional)           | E.g., RTX 5090 for inference    |
 | Dependencies| `bertopic==0.17.0`, `spacy==3.8.5`, `shap==0.47.2` | For NLP and explainability |
@@ -135,7 +135,7 @@ For a detailed directory structure, see [MarketMind Directory Structure.md](Mark
 <details>
 <summary>Click to expand</summary>
 <pre>
-- **1.6.0 (2025-05-09)**: Added alternative data, ensemble models, trading strategies, risk management, backtesting, simulation, and deployment configurations. Updated project structure for HFT.
+- **1.6.0 (2025-05-09)**: Added alternative data, ensemble models, trading strategies, risk management, backtesting, simulation, and deployment configurations. Updated project structure for HFT. Transitioned GUI from Swing to JavaFX, updated Java to 21, expanded Java package structure, and enhanced CI/CD with Codecov for Java coverage.
 - **1.5.4 (2025-05-06)**: Fixed test failures in `test_ib_data_collection.py` by correcting `NoDataError` imports and `TestAsyncHelpers` test placement. Resolved `tensorflow-onnx` test discovery errors by setting `testpaths = tests/python` in `pytest.ini`. Ensured all 26 tests pass.
 - **1.5.3 (2025-05-05)**: Configured pytest-asyncio with asyncio_default_fixture_loop_scope = function to resolve PytestDeprecationWarning; updated run_tests.bat to suppress eventkit warning; fixed test imports.
 - **1.5.2 (2025-05-05)**: Fixed test failures in test_ib_data_collection.py and test_ib_api.py by mocking IB class; enabled pytest-asyncio.

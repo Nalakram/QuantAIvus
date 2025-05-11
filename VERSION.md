@@ -20,25 +20,80 @@
   - `deployment/influxdb_config.yaml`: Configures InfluxDB for time-series storage.
   - `deployment/docker-compose.yml`: Configures cloud GPU deployment.
   - `docs/onboarding.md`: Provides collaboration and setup guide.
+  - `java/src/com/example/ui/controllers/DashboardController.java`: JavaFX controller for dashboard UI events and stock data display.
+  - `java/src/com/example/ui/controllers/LoginController.java`: JavaFX controller for login UI and authentication.
+  - `java/src/com/example/ui/controllers/SettingsController.java`: JavaFX controller for user preference settings.
+  - `java/src/com/example/ui/views/CustomChartNode.java`: Optional custom JavaFX node for chart visualizations.
+  - `java/src/com/example/services/DataFetchService.java`: Service for asynchronous market data fetching.
+  - `java/src/com/example/services/UserAuthService.java`: Service for user authentication logic.
+  - `java/src/com/example/utils/JSONParser.java`: Utility for JSON parsing.
+  - `java/src/com/example/utils/DateUtils.java`: Utility for date formatting.
+  - `java/src/com/example/persistence/UserPrefsManager.java`: Manages user preference storage in JSON.
+  - `java/src/com/example/models/UserPrefs.java`: Model for user preferences (e.g., theme, layout).
+  - `java/src/com/example/models/StockData.java`: Model for stock data (e.g., ticker, price).
+  - `java/src/com/example/MainApp.java`: JavaFX application entry point with navigation.
+  - `java/resources/fxml/RootLayout.fxml`: Main JavaFX layout with BorderPane for view switching.
+  - `java/resources/fxml/Dashboard.fxml`: Dashboard view for stock data and predictions.
+  - `java/resources/fxml/Login.fxml`: Login view for authentication.
+  - `java/resources/fxml/Settings.fxml`: Settings view for preferences.
+  - `java/resources/css/styles.css`: Global JavaFX styling (e.g., dark theme).
+  - `java/resources/css/dashboard.css`: Dashboard-specific styling.
+  - `java/resources/config/application.properties`: Application-wide settings (e.g., API endpoints).
+  - `tests/java/ui/controllers/DashboardControllerTest.java`: Tests dashboard UI events with mocked services.
+  - `tests/java/ui/controllers/LoginControllerTest.java`: Tests login UI with mocked authentication.
+  - `tests/java/ui/controllers/SettingsControllerTest.java`: Tests settings UI with mocked preferences.
+  - `tests/java/ui/views/CustomChartNodeTest.java`: Tests custom chart node (if used).
+  - `tests/java/integration/PythonRunnerTest.java`: Tests Python script execution.
+  - `tests/java/integration/InferenceJNITest.java`: Tests C++ inference via JNI.
+  - `tests/java/integration/BackendClientTest.java`: Tests gRPC client requests.
+  - `tests/java/services/DataFetchServiceTest.java`: Tests data fetching service.
+  - `tests/java/services/UserAuthServiceTest.java`: Tests authentication service.
+  - `tests/java/utils/JSONParserTest.java`: Tests JSON parsing.
+  - `tests/java/utils/DateUtilsTest.java`: Tests date formatting.
+  - `tests/java/persistence/UserPrefsManagerTest.java`: Tests preference storage.
+  - `tests/java/models/UserPrefsTest.java`: Tests user preference model.
+  - `tests/java/models/StockDataTest.java`: Tests stock data model.
+  - `tests/java/MainAppTest.java`: Tests JavaFX app startup and navigation with TestFX.
 - **Added Directories**:
   - `srcPy/models/ensemble/`: Directory for ensemble model scripts.
   - `srcPy/strategies/`: Directory for trading strategy scripts.
   - `deployment/`: Directory for deployment configurations.
   - `docs/`: Directory for team documentation.
+  - `java/src/com/example/ui/controllers/`: Directory for JavaFX controllers.
+  - `java/src/com/example/ui/views/`: Directory for custom JavaFX UI components.
+  - `java/src/com/example/services/`: Directory for business logic services.
+  - `java/src/com/example/utils/`: Directory for utility classes.
+  - `java/src/com/example/persistence/`: Directory for preference storage.
+  - `java/src/com/example/models/`: Directory for domain models.
+  - `java/resources/fxml/`: Directory for FXML view files.
+  - `java/resources/css/`: Directory for CSS styling files.
+  - `java/resources/config/`: Directory for configuration files.
+  - `tests/java/ui/controllers/`: Directory for controller tests.
+  - `tests/java/ui/views/`: Directory for view component tests.
+  - `tests/java/services/`: Directory for service tests.
+  - `tests/java/utils/`: Directory for utility tests.
+  - `tests/java/persistence/`: Directory for persistence tests.
+  - `tests/java/models/`: Directory for model tests.
 - **Updated Files**:
   - `srcPy/ib_data_collection.py`: Extended to support high-frequency intraday data.
   - `srcPy/data_loader.py`: Integrated with InfluxDB for time-series storage.
   - `srcPy/train_model.py`: Added support for short-term prediction horizons and online learning.
   - `srcPy/evaluate_model.py`: Enhanced with statistical focus using SHAP.
   - `cpp/CMakeLists.txt`: Added optimization flags for HFT inference.
-  - `README.md`: Updated project structure and feature descriptions.
-  - `MarketMind Directory Structure.md`: Reflected new files and directories.
+  - `pom.xml`: Added JavaFX dependencies (`javafx-controls`, `javafx-fxml`, `testfx-junit5`) and updated to Java 21.
+  - `ci.yaml`: Enhanced CI/CD with Codecov for Java coverage, fixed `ccache` in C++ build step, added retries for JavaFX tests, and included `cppcheck` debug output.
+  - `README.md`: Updated project structure and feature descriptions. Updated to reflect JavaFX GUI, Java 21, expanded Java package structure, and added build status and Codecov badges.
+  - `MarketMind Directory Structure.md`: Reflected new files and directories. Expanded Java GUI directory with controllers, FXML, and CSS, updated to Java 21.
   - `VERSION.md`: Added entry for version 1.6.0.
 - **Notes**:
   - Enhanced project for high-frequency trading with automated execution, risk management, and alternative data.
   - Replaced `processed_data.bin` with InfluxDB for efficient data handling.
   - Added ensemble modeling and proprietary layers to improve prediction accuracy.
   - Version incremented to 1.6.0 (MINOR) per Semantic Versioning for new functionality.
+  - Transitioned GUI from Swing to JavaFX, adopting MVC architecture with FXML-based views, modular controllers, and CSS styling for a responsive, modern interface.
+  - Updated Java to 21 for compatibility with JavaFX 21 and modern features.
+  - Expanded Java package structure to include `ui/controllers`, `ui/views`, `services`, `utils`, `persistence`, and `models` for better modularity.
+  - Enhanced CI/CD pipeline with Codecov integration for Java test coverage, fixed `ccache` usage in C++ builds, and added retries for JavaFX test stability.
 
 ## Version 1.5.4 (2025-05-09)
 - **Updated Files**:

@@ -18,6 +18,7 @@
         <jackson.version>2.18.3</jackson.version>
         <slf4j.version>2.0.9</slf4j.version>
         <junit.version>5.11.3</junit.version>
+        <javafx.version>21</javafx.version>
     </properties>
 
     <!-- Dependency version management for consistency -->
@@ -41,8 +42,19 @@
         </repository>
     </repositories>
 
-    <!-- Dependencies for Java GUI and gRPC client -->
+    <!-- Dependencies for JavaFX GUI, gRPC client, and testing -->
     <dependencies>
+        <!-- JavaFX dependencies for GUI -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
         <!-- gRPC dependencies for BackendClient.java -->
         <dependency>
             <groupId>io.grpc</groupId>
@@ -80,11 +92,18 @@
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-        <!-- JUnit for unit testing (test_StockPredictionGUI.java) -->
+        <!-- JUnit for unit testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- TestFX for JavaFX UI testing -->
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit5</artifactId>
+            <version>4.0.18</version>
             <scope>test</scope>
         </dependency>
         <!-- Optional: HTTP client for external API calls (e.g., market data) -->
@@ -131,6 +150,25 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
             <!-- Maven Surefire Plugin for running JUnit tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
