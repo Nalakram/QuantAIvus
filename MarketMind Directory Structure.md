@@ -3,7 +3,7 @@ Overview
 MarketMind is a JavaFX GUI application for institutional analysts, integrating Python for data processing and model training, and C++ for high-performance inferencing. This structure follows MVC and layered architecture principles, ensuring modularity, scalability, and a responsive GUI. It uses srcPy/ for Python, cpp/ for C++, java/ for JavaFX, and includes shared resources, tests, deployment configs, and documentation.
 Directory Structure
 <details>
-
+<pre>
 MarketMind/
 ├── pom.xml                         # Maven configuration for Java dependencies and C++ build integration using nar-maven-plugin
 ├── README.md                       # Project overview, setup instructions, and usage guide
@@ -172,11 +172,11 @@ MarketMind/
         └── libInference.so                      # Compiled C++ shared library for JNI
 
 </pre>
-
+</details>
 
 Package Descriptions
 <details>
-
+<pre>
 java/src/com/example/ui.controllers: JavaFX controllers paired with FXML files, handling UI events and delegating to services.
 java/src/com/example/ui.views: Optional package for custom UI components (e.g., reusable chart nodes).
 java/src/com/example/integration: Manages Python, C++, and gRPC interactions.
@@ -192,8 +192,9 @@ models/: Versioned storage for trained models.
 tests/: Comprehensive test suite for all components.
 deployment/: Configurations for deployment.
 docs/: Documentation for maintainability.
-
+</pre>
 </details>
+
 Recommendations
 
 Navigation System: Use RootLayout.fxml with a BorderPane to load FXML views into its center, enabling efficient view switching (Stack Overflow).
