@@ -174,7 +174,8 @@ MarketMind/
 </pre>
 </details>
 Package Descriptions
-
+<details>
+<pre>
 java/src/com/example/ui.controllers: JavaFX controllers paired with FXML files, handling UI events and delegating to services.
 java/src/com/example/ui.views: Optional package for custom UI components (e.g., reusable chart nodes).
 java/src/com/example/integration: Manages Python, C++, and gRPC interactions.
@@ -190,7 +191,8 @@ models/: Versioned storage for trained models.
 tests/: Comprehensive test suite for all components.
 deployment/: Configurations for deployment.
 docs/: Documentation for maintainability.
-
+</pre>
+</details>
 Recommendations
 
 Navigation System: Use RootLayout.fxml with a BorderPane to load FXML views into its center, enabling efficient view switching (Stack Overflow).
