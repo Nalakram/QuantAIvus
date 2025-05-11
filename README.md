@@ -25,16 +25,16 @@ MarketMind predicts stock prices using a Transformer-based model with optional L
 The project uses gRPC for communication and includes comprehensive tests for reliability.
 
 ## Features
-- 📊 **Data Pipeline**: Fetches real-time/historical stock data, financial metrics, economic indicators, and alternative data (social media, supply chain, ESG) via `ib_insync`, `yfinance`, and custom APIs.
-- 📜 **NLP Topic Modeling**: Analyzes financial texts (e.g., news, earnings calls) using `bertopic` and `spacy[transformers]` for sentiment and topic insights.
-- 🤖 **Machine Learning**: Hybrid Transformer model with LSTM/TCN layers, ensemble methods (XGBoost, ARIMA), and proprietary layers, trained with TensorFlow and exported to ONNX.
-- ⚡ **Inference**: Optimized C++ backend for NVIDIA GPUs (CUDA 12.9) with sub-millisecond latency for HFT.
-- 🖼️ **GUI**: Java Swing interface for visualizing predictions and metrics.
-- 🔍 **Explainability**: SHAP-based feature importance for model transparency.
-- 🧪 **Testing**: Unit and integration tests with `pytest`, Google Test, and JUnit.
-- 💹 **Trading Strategies**: Statistical arbitrage and momentum-based strategies for automated HFT.
-- 🛡️ **Risk Management**: Kelly criterion, stop-losses, portfolio optimization, and drawdown monitoring.
-- 🚀 **Deployment**: Cloud GPU support (AWS EC2) and InfluxDB for time-series data storage.
+- **Data Pipeline**: Fetches real-time/historical stock data, financial metrics, economic indicators, and alternative data (social media, supply chain, ESG) via `ib_insync`, `yfinance`, and custom APIs.
+- **NLP Topic Modeling**: Analyzes financial texts (e.g., news, earnings calls) using `bertopic` and `spacy[transformers]` for sentiment and topic insights.
+- **Machine Learning**: Hybrid Transformer model with LSTM/TCN layers, ensemble methods (XGBoost, ARIMA), and proprietary layers, trained with TensorFlow and exported to ONNX.
+- **Inference**: Optimized C++ backend for NVIDIA GPUs (CUDA 12.9) with sub-millisecond latency for HFT.
+- **GUI**: Java Swing interface for visualizing predictions and metrics.
+- **Explainability**: SHAP-based feature importance for model transparency.
+- **Testing**: Unit and integration tests with `pytest`, Google Test, and JUnit.
+- **Trading Strategies**: Statistical arbitrage and momentum-based strategies for automated HFT.
+- **Risk Management**: Kelly criterion, stop-losses, portfolio optimization, and drawdown monitoring.
+- **Deployment**: Cloud GPU support (AWS EC2) and InfluxDB for time-series data storage.
 
 ## Project Structure
 <details>
@@ -132,6 +132,9 @@ For a detailed directory structure, see [MarketMind Directory Structure.md](Mark
   ```
 
 ## Version History
+<details>
+<summary>Click to expand</summary>
+<pre>
 - **1.6.0 (2025-05-09)**: Added alternative data, ensemble models, trading strategies, risk management, backtesting, simulation, and deployment configurations. Updated project structure for HFT.
 - **1.5.4 (2025-05-06)**: Fixed test failures in `test_ib_data_collection.py` by correcting `NoDataError` imports and `TestAsyncHelpers` test placement. Resolved `tensorflow-onnx` test discovery errors by setting `testpaths = tests/python` in `pytest.ini`. Ensured all 26 tests pass.
 - **1.5.3 (2025-05-05)**: Configured pytest-asyncio with asyncio_default_fixture_loop_scope = function to resolve PytestDeprecationWarning; updated run_tests.bat to suppress eventkit warning; fixed test imports.
@@ -143,8 +146,9 @@ For a detailed directory structure, see [MarketMind Directory Structure.md](Mark
 - **1.2.0 (2025-05-01)**: Added Proprietary License.
 - **1.1.0 (2025-04-30)**: Added `config.py`, `logger.py`, `pytest.ini`, `run_tests.bat`.
 - **1.0.0**: Initial structure.
-
+</pre>
 See [VERSION.md](VERSION.md) for details.
+</details>
 
 ## Contributing
 - Submit issues or pull requests to the repository.

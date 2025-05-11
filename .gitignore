@@ -1,71 +1,67 @@
+# === General OS Files ===
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# === IDEs and Editors ===
+.vscode/
+.idea/
+.spyproject/
+cmake-build-*/
+*.swp
+*.swo
+*.bak
+
 # === Python ===
 __pycache__/
 *.py[cod]
-*.egg-info/
-dist/
-build/
-.eggs/
-*.egg
 *.pyo
 *.pyd
-.env
-.venv
-env/
+*.egg-info/
+*.egg
+.eggs/
 venv/
+env/
 ENV/
-pip-log.txt
-pip-delete-this-directory.txt
-htmlcov/
-.coverage
-.cache
+*.env
+*.venv/
+.pip-cache/
 .mypy_cache/
-.dmypy.json
 .pytest_cache/
-
-# Jupyter Notebooks
+.coverage
+coverage.xml
+.tox/
+*.cover
+test-results/
 .ipynb_checkpoints
 
-# Virtual Environment
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder IDE
-.spyproject/
-
-# PyCharm
-.idea/
-
-# Visual Studio Code
-.vscode/
+# === ML Models and Data ===
+/data/processed/*
+!/data/processed/.gitkeep
+/data/raw/*
+!/data/raw/.gitkeep
+/models/*
+!/models/.gitkeep
+*.onnx
+*.h5
+*.pkl
+*.joblib
+*.pt
+*.pth
+/checkpoints/*
+!/checkpoints/.gitkeep
 
 # === C++ ===
-# Compiled Object files
-*.slo
-*.lo
 *.o
 *.obj
-*.gch
-*.pch
-*.lib
-*.a
-*.la
-*.lo
-*.dll
-*.dylib
-*.so
 *.exe
 *.out
-*.app
-*.ilk
-*.exp
+*.a
+*.so
+*.dll
 *.pdb
-*.ipdb
-*.iobj
-*.idb
-
-# Build directories
+*.lib
 /build/
 /cmake-build-debug/
 /cmake-build-release/
@@ -74,116 +70,33 @@ CMakeFiles/
 cmake_install.cmake
 Makefile
 
-# Visual Studio
-*.VC.db
-*.VC.opendb
-.vs/
-
-# CLion
-cmake-build-*/
-
 # === Java ===
 *.class
 *.jar
 *.war
 *.ear
-hs_err_pid*
+/target/
 .classpath
 .project
 .settings/
-bin/
-build/
-target/
 
-# IntelliJ IDEA
-*.iml
-.idea/
+# === Deployment ===
+docker-compose.override.yml
+deployment/*.log
+deployment/*.bak
+deployment/.env
+*.kube
 
-# Eclipse
-.metadata/
-tmp/
-*.tmp
-*.bak
-*.swp
-*.swo
-*.swm
-*~
-
-# NetBeans
-nbproject/private/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
-
-# Maven
-log/
-target/
-
-# Gradle
-.gradle/
-build/
-
-# === Shell ===
+# === Logs and Databases ===
 *.log
-*.tmp
-*.swp
-
-# === Windows ===
-# Windows thumbnail cache files
-Thumbs.db
-ehthumbs.db
-ehthumbs_vista.db
-
-# Dump file
-*.stackdump
-
-# Folder config files
-[Dd]esktop.ini
-
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Windows shortcuts
-*.lnk
-
-# Windows installer files
-*.msi
-*.cab
-*.msp
-
-# Windows logs
-*.log
-*.etl
-
-# Windows directory attributes file
-[Bb]ackup/
-[Rr]estore/
-System Volume Information/
-
-# === MacOS (Optional, for cross-platform compatibility) ===
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
-._*
-.Spotlight-V100
-.Trashes
-
-# === Logs and databases ===
-*.log
-*.sql
+*.log.*
 *.sqlite
+*.sqlite3
+*.db
 
-# === IDE general ===
-*.sublime-workspace
-
-# === Sensitive info ===
-config.yml
-*.env
-*.secret
-*.key
+# === Sensitive Files ===
 *.pem
+*.key
 *.cer
 *.crt
 *.csr
@@ -195,28 +108,14 @@ config.yml
 *.gpg
 *.pgp
 credentials.json
+*.secret
 
-# === Project-specific ===
-/data/processed/*
-!/data/processed/.gitkeep
-/models/*
-!/models/.gitkeep
-
-# === Miscellaneous ===
-*.tmp
-*.bak
-*.orig
-*.save
-*.autosave
-*.cache
-
-# === Generated Documentation ===
-docs/_build/
-site/
-
-# === gRPC ===
+# === gRPC (if used) ===
 *_pb2.py
 *_pb2_grpc.py
 
-# === ONNX ===
-*.onnx
+# === Miscellaneous ===
+*.tmp
+*.cache
+*.csv~
+*.json~
