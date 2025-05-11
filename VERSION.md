@@ -1,6 +1,6 @@
 # Version History
 
-## Version 1.6.0 (2025-05-06)
+## Version 1.6.0 (2025-05-11)
 - **Added Files**:
   - `srcPy/data/alternative_data.py`: Fetches alternative data (social media, supply chain, ESG, insider trading).
   - `srcPy/data/data_cleaning.py`: Implements outlier detection, Kalman filtering, and normalization.
