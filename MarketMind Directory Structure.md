@@ -2,6 +2,8 @@ MarketMind Directory Structure
 Overview
 MarketMind is a JavaFX GUI application for institutional analysts, integrating Python for data processing and model training, and C++ for high-performance inferencing. This structure follows MVC and layered architecture principles, ensuring modularity, scalability, and a responsive GUI. It uses srcPy/ for Python, cpp/ for C++, java/ for JavaFX, and includes shared resources, tests, deployment configs, and documentation.
 Directory Structure
+<details>
+<pre>
 MarketMind/
 ├── pom.xml                         # Maven configuration for Java dependencies and C++ build integration using nar-maven-plugin
 ├── README.md                       # Project overview, setup instructions, and usage guide
@@ -169,8 +171,12 @@ MarketMind/
     └── libs/
         └── libInference.so                      # Compiled C++ shared library for JNI
 
-Package Descriptions
+</pre>
+</details>
 
+Package Descriptions
+<details>
+<pre>
 java/src/com/example/ui.controllers: JavaFX controllers paired with FXML files, handling UI events and delegating to services.
 java/src/com/example/ui.views: Optional package for custom UI components (e.g., reusable chart nodes).
 java/src/com/example/integration: Manages Python, C++, and gRPC interactions.
@@ -186,14 +192,16 @@ models/: Versioned storage for trained models.
 tests/: Comprehensive test suite for all components.
 deployment/: Configurations for deployment.
 docs/: Documentation for maintainability.
+</pre>
+</details>
 
 Recommendations
 
-Navigation System: Use RootLayout.fxml with a BorderPane to load FXML views into its center, enabling efficient view switching (Stack Overflow).
-Build Integration: Integrate C++ builds into Maven using nar-maven-plugin to streamline development (Stack Overflow).
-Model Management: Use a singleton or context class to share models like StockData across controllers (Reddit).
-Documentation: Maintain detailed guides in docs/ for Java, Python, and C++ components (Stack Overflow).
-Package Size: Monitor ui.controllers for bloat; split into subpackages (e.g., ui.controllers.auth) if needed (Reintech).
-Dependency Management: Ensure unidirectional dependencies using interfaces or dependency injection (Spring).
-Lightweight Controllers: Delegate business logic to services for a responsive GUI (Oracle).
+Navigation System: Use RootLayout.fxml with a BorderPane to load FXML views into its center, enabling efficient view switching.
+Build Integration: Integrate C++ builds into Maven using nar-maven-plugin to streamline development.
+Model Management: Use a singleton or context class to share models like StockData across controllers.
+Documentation: Maintain detailed guides in docs/ for Java, Python, and C++ components.
+Package Size: Monitor ui.controllers for bloat; split into subpackages (e.g., ui.controllers.auth) if needed.
+Dependency Management: Ensure unidirectional dependencies using interfaces or dependency injection.
+Lightweight Controllers: Delegate business logic to services for a responsive GUI.
 
