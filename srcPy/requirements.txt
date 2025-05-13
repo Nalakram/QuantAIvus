@@ -33,9 +33,7 @@ onnxruntime>=1.14  # Added for Python-side inference
 # NLP Topic Modeling
 bertopic
 spacy[transformers]>=3.7
-https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.7.1/en_core_web_trf-3.7.1-py3-none-any.whl
-
-
+https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.8.0/en_core_web_trf-3.8.0-py3-none-any.whl
 
 # Evaluation & Explainability
 shap
@@ -62,3 +60,5 @@ hmmlearn>=0.3.2
 tensorflow-gnn>=0.6.0
 tensorflow-probability>=0.24.0
 arch>=7.0.0
+pykalman
+influxdb-client
