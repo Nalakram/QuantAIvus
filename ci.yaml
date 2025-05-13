@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3.11]
+        python-version: [3.12]
         os: [ubuntu-latest, windows-latest]
     steps:
     - uses: actions/checkout@v4
@@ -75,6 +75,45 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: python-coverage-${{ github.sha }}-${{ matrix.python-version }}-${{ matrix.os }}
+        path: coverage.xml
+        retention-days: 7
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  test_data_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r srcPy/requirements.txt
+        pip install pytest pytest-asyncio pytest-mock pytest-cov aioresponses websockets mlflow
+    - name: Run data pipeline tests with coverage
+      run: |
+        pytest --cov=srcPy --cov-report=term --cov-report=xml --cov-fail-under=90 tests/
+      env:
+        INFLUXDB_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
+        IB_API_KEY: ${{ secrets.IB_API_KEY }}
+        ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
+        ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
+        TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+        ESG_API_KEY: ${{ secrets.ESG_API_KEY }}
+        FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        BBG_API_KEY: ${{ secrets.BBG_API_KEY }}
+        WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: data-pipeline-coverage-${{ github.sha }}-py3.12-ubuntu
         path: coverage.xml
         retention-days: 7
     - name: Upload coverage to Codecov
