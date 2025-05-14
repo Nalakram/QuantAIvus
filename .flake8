@@ -3,12 +3,13 @@
 max-line-length = 120
 
 # Ignore specific error codes
-extend-ignore =
-    E203,  # Whitespace before ':'
-    W503,  # Line break before binary operator
-    W293,  # Blank line contains whitespace (optional, consider auto-fixing instead)
-    W291,  # Trailing whitespace (optional, consider auto-fixing instead)
-    E231,  # Missing whitespace after comma (optional, for flexibility)
+extend-ignore = E203, W503, W293, W291, E231
+
+# E203: Whitespace before ':'
+# W503: Line break before binary operator
+# W293: Blank line contains whitespace (optional, consider auto-fixing instead)
+# W291: Trailing whitespace (optional, consider auto-fixing instead)
+# E231: Missing whitespace after comma (optional, for flexibility)
 
 # Don’t lint these directories
 exclude =
