@@ -67,7 +67,7 @@ setup(
     python_requires='>=3.7,<3.13',
     extras_require={"test": ["pytest", "pytest-cov", "graphviz", "parameterized", "pyyaml", "timeout-decorator",],},
     cmdclass=cmdclass,
-    packages=['tf2onnx'],
+    packages=find_packages(where='src', exclude=['ci_build', 'tutorials']),
     package_dir={'': 'src'},
     license='Apache License v2.0',
     author='ONNX',
