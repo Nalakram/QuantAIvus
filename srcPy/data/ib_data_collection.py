@@ -15,16 +15,20 @@ from srcPy.utils.validators import validate_symbol, validate_date
 
 # import pytz
 
+
 class NoDataError(DataFetchError):
     """Raised when no data is returned for a valid symbol."""
+
     def __init__(self, symbol: str):
         super().__init__(f"No historical data returned for {symbol}")
+
 
 def _get_cache_path(symbol: str) -> Path:
     """Return cache file path for a symbol."""
     cache_dir = Path("data/raw/historical_prices_ib")
     cache_dir.mkdir(parents=True, exist_ok=True)
     return cache_dir / f"{symbol}.parquet"
+
 
 def _bars_to_df(bars: List[BarData]) -> pd.DataFrame:
     """
@@ -33,39 +37,40 @@ def _bars_to_df(bars: List[BarData]) -> pd.DataFrame:
     try:
         if not bars:
             raise DataFetchError("Empty DataFrame")
-        
+
         # Validate BarData attributes
         required_fields = {'open', 'high', 'low', 'close', 'volume', 'barCount', 'average'}
         for bar in bars:
             missing = [field for field in required_fields if getattr(bar, field, None) is None]
             if missing:
                 raise DataFetchError(f"Missing BarData fields: {', '.join(missing)}")
-        
+
         df = util.df(bars)
         if df.empty:
             raise DataFetchError("Empty DataFrame after conversion")
-        
+
         df['date'] = pd.to_datetime(df['date'], utc=True)
         df = df.set_index('date')
-        
+
         if 'wap' in df.columns:
             df = df.rename(columns={'wap': 'average'})
-        
+
         expected_columns = {'open', 'high', 'low', 'close', 'volume', 'barCount', 'average'}
         if not expected_columns.issubset(df.columns):
             raise DataFetchError(f"Missing expected columns: {', '.join(expected_columns - set(df.columns))}")
-        
+
         df = df[~df.index.duplicated(keep='last')].sort_index()
-        
+
         if df[['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']].isna().any().any():
             logger.warning("Missing values detected in DataFrame", action="filling with forward fill")
             df = df.ffill()
-        
+
         return df[['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']]
     except IBConnectionError as e:
         raise
     except Exception as e:
         raise DataFetchError(f"Failed to convert bars to DataFrame: {str(e)}") from e
+
 
 def create_mock_bars(n: int, start_date: str = "2025-01-01") -> List[BarData]:
     """Generate mock BarData for testing."""
@@ -84,6 +89,7 @@ def create_mock_bars(n: int, start_date: str = "2025-01-01") -> List[BarData]:
             average=100.25 + i
         ))
     return bars
+
 
 async def _fetch_historical_async(
     symbol: str,
@@ -111,7 +117,8 @@ async def _fetch_historical_async(
     if use_cache and cache_path.exists():
         try:
             cached_df = pd.read_parquet(cache_path)
-            if not cached_df.empty and all(col in cached_df.columns for col in ['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']):
+            if not cached_df.empty and all(col in cached_df.columns for col in [
+                                           'open', 'high', 'low', 'close', 'volume', 'average', 'barCount']):
                 last_date = cached_df.index.max().tz_convert('UTC')
                 log.info("Found cached data", last_date=last_date)
                 # Adjust end_date only if fetching new data
@@ -170,6 +177,7 @@ async def _fetch_historical_async(
         log.error("Unexpected error during async data fetch", error=str(e))
         raise DataFetchError(str(e)) from e
 
+
 def fetch_historical_data(
     symbol: str,
     end_date: str = '',
@@ -195,7 +203,8 @@ def fetch_historical_data(
     if use_cache and cache_path.exists():
         try:
             cached_df = pd.read_parquet(cache_path)
-            if not cached_df.empty and all(col in cached_df.columns for col in ['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']):
+            if not cached_df.empty and all(col in cached_df.columns for col in [
+                                           'open', 'high', 'low', 'close', 'volume', 'average', 'barCount']):
                 last_date = cached_df.index.max().tz_convert('UTC')
                 log.info("Found cached data", last_date=last_date)
                 # Adjust end_date only if fetching new data
@@ -271,6 +280,7 @@ def fetch_historical_data(
     except Exception as e:
         log.error("Unexpected error during data fetch", error=str(e))
         raise DataFetchError(str(e)) from e
+
 
 async def fetch_multiple_historical_data(
     symbols: List[str],

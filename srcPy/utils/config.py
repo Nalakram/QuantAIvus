@@ -18,10 +18,13 @@ CONFIG_PATH = BASE / "data" / "config.yaml"
 SCHEMA_PATH = BASE / "data" / "config_schema.json"
 
 # Preprocessing Section
+
+
 class RSIConfig(BaseModel):
     enabled: bool
     window: int
     fillna_method: str
+
 
 class MACDConfig(BaseModel):
     enabled: bool
@@ -30,31 +33,38 @@ class MACDConfig(BaseModel):
     signal_period: int
     fillna_method: str
 
+
 class TechnicalIndicators(BaseModel):
     rsi: Optional[RSIConfig] = None
     macd: Optional[MACDConfig] = None
 
+
 class ClipExtremes(BaseModel):
     min: float
     max: float
+
 
 class NormalizationConfig(BaseModel):
     method: str
     rolling_window: int
     clip_extremes: ClipExtremes
 
+
 class SentimentConfig(BaseModel):
     enabled: bool
     source: str
     sentiment_model: str
 
+
 class ESGNormalizedConfig(BaseModel):
     enabled: bool
     method: str
 
+
 class CustomFeatures(BaseModel):
     sentiment: Optional[SentimentConfig] = None
     esg_normalized: Optional[ESGNormalizedConfig] = None
+
 
 class Preprocessing(BaseModel):
     technical_indicators: TechnicalIndicators
@@ -62,6 +72,8 @@ class Preprocessing(BaseModel):
     custom_features: CustomFeatures
 
 # Streaming Section
+
+
 class Streaming(BaseModel):
     batch_size: int
     update_interval_seconds: int
@@ -74,26 +86,32 @@ class Streaming(BaseModel):
     sync_interval_seconds: int
 
 # Error Handling Section
+
+
 class RetryPolicy(BaseModel):
     max_attempts: int
     initial_backoff_seconds: int
     max_backoff_seconds: int
     retry_strategy: str
 
+
 class ValidationThresholds(BaseModel):
     max_missing_ratio: float
     max_outlier_ratio: float
+
 
 class Fallback(BaseModel):
     twitter: str
     esg: str
     data_source: str
 
+
 class Alerting(BaseModel):
     enabled: bool
     channel: str
     critical_failures: List[str]
     alert_severity: List[str]
+
 
 class ErrorHandling(BaseModel):
     retry_policy: RetryPolicy
@@ -102,13 +120,16 @@ class ErrorHandling(BaseModel):
     alerting: Alerting
     fallback_timeout_seconds: int
 
-# Data Source Section    
+# Data Source Section
+
+
 class CSVConfig(BaseModel):
     path: str
     chunksize: int
     use_dask: bool
     compression: str
     data_format: str
+
 
 class InfluxDBConfig(BaseModel):
     host: str
@@ -118,12 +139,15 @@ class InfluxDBConfig(BaseModel):
     bucket: str
     query: str
 
+
 class DataSource(BaseModel):
     type: str
     csv: Optional[CSVConfig] = None
     influxdb: Optional[InfluxDBConfig] = None
 
 # Alternative Data Section
+
+
 class TwitterConfig(BaseModel):
     base_url: str
     bearer_token: str
@@ -136,6 +160,7 @@ class TwitterConfig(BaseModel):
     cache_duration_hours: int
     data_resolution: str
 
+
 class ESGConfig(BaseModel):
     base_url: str
     api_key: str
@@ -146,18 +171,22 @@ class ESGConfig(BaseModel):
     cache_duration_hours: int
     data_resolution: str
 
+
 class AlternativeData(BaseModel):
     twitter: Optional[TwitterConfig] = None
     esg: Optional[ESGConfig] = None
     fred: Optional[dict] = None
     bloomberg: Optional[dict] = None
     weather: Optional[dict] = None
-    
+
 # Model Section
+
+
 class ModelArchitecture(BaseModel):
     num_layers: int
     hidden_size: int
     dropout: float
+
 
 class Model(BaseModel):
     model_type: str
@@ -171,16 +200,21 @@ class Model(BaseModel):
     onnx_export: Dict[str, Any]
 
 # Cleaning Section (Existing)
+
+
 class Cleaning(BaseModel):
     missing_values: Dict[str, Any]
     outliers: Dict[str, Any]
     denoising: Dict[str, Any]
 
 # Logging Section
+
+
 class FileOutputConfig(BaseModel):
     enabled: bool
     path: str
     rotation: str
+
 
 class InfluxDBOutputConfig(BaseModel):
     enabled: bool
@@ -190,16 +224,20 @@ class InfluxDBOutputConfig(BaseModel):
     org: str
     bucket: str
 
+
 class OutputsConfig(BaseModel):
     console: bool
     file: FileOutputConfig
     influxdb: InfluxDBOutputConfig
 
+
 class MetricAggregationConfig(BaseModel):
     aggregation_window_seconds: int
 
+
 class DashboardConfig(BaseModel):
     grafana_url: str
+
 
 class Logging(BaseModel):
     level: str
@@ -212,23 +250,29 @@ class Logging(BaseModel):
     dashboard_config: DashboardConfig
 
 # Security Section
+
+
 class EncryptionConfig(BaseModel):
     at_rest: bool
     in_transit: bool
     encryption_algorithm: str
 
+
 class CredentialsConfig(BaseModel):
     twitter_api_key: str
     esg_api_key: str
 
+
 class DataAnonymizationConfig(BaseModel):
     anonymize_pii: bool
+
 
 class ComplianceConfig(BaseModel):
     audit_log: bool
     retention_days: int
     audit_frequency_days: int
     data_anonymization: DataAnonymizationConfig
+
 
 class Security(BaseModel):
     encryption: EncryptionConfig
@@ -237,16 +281,21 @@ class Security(BaseModel):
     compliance: ComplianceConfig
 
 # Backtesting Section
+
+
 class RiskManagementConfig(BaseModel):
     stop_loss: float
     max_drawdown: float
+
 
 class DateRangeConfig(BaseModel):
     start: str
     end: str
 
+
 class PositionSizingConfig(BaseModel):
     method: str
+
 
 class Backtesting(BaseModel):
     initial_capital: float
@@ -261,6 +310,8 @@ class Backtesting(BaseModel):
     backtest_frequency: str
 
 # Update Config to include all sections
+
+
 class Config(BaseModel):
     version: str
     schema_uri: str
@@ -274,6 +325,7 @@ class Config(BaseModel):
     logging: Logging
     security: Security
     backtesting: Backtesting
+
 
 def resolve_env_vars(data):
     if isinstance(data, dict):
@@ -293,13 +345,14 @@ def resolve_env_vars(data):
         return data
     return data
 
+
 def load_config() -> Config:
     """
     Load and validate the configuration from the YAML file.
-    
+
     Returns:
         Config: A Pydantic model instance containing the validated configuration.
-    
+
     Raises:
         FileNotFoundError: If the config or schema file is missing.
         ValueError: If validation against the JSON schema or Pydantic model fails.
@@ -320,13 +373,13 @@ def load_config() -> Config:
             severity="critical"
         )
         raise FileNotFoundError(f"Schema file not found: {SCHEMA_PATH}")
-    
+
     with open(CONFIG_PATH, 'r') as f:
         config_data = yaml.safe_load(f)
-    
+
     # Resolve environment variables
     config_data = resolve_env_vars(config_data)
-    
+
     # Verify schema_uri matches the actual schema path
     if config_data.get("schema_uri") != SCHEMA_PATH.name:
         logger.error(
@@ -337,11 +390,11 @@ def load_config() -> Config:
             severity="critical"
         )
         raise ConfigValidationError("schema_uri in config.yaml does not match the schema file")
-    
+
     # Load JSON schema
     with open(SCHEMA_PATH, 'r') as f:
         schema = json.load(f)
-        
+
     # Validate against JSON schema
     try:
         validate(instance=config_data, schema=schema)
@@ -353,7 +406,7 @@ def load_config() -> Config:
             severity="critical"
         )
         raise ConfigValidationError(f"Config validation failed: {e.message}", validation_errors=[str(e)])
-    
+
     # Parse with Pydantic
     try:
         config = Config(**config_data)
@@ -365,17 +418,19 @@ def load_config() -> Config:
             severity="critical"
         )
         raise ConfigValidationError(f"Invalid config structure: {e}", validation_errors=e.errors())
-    
+
     logger.info("Configuration loaded successfully", config_version=config.version)
     return config
+
 
 # Load the configuration once at module level
 config = load_config()
 
+
 def get_config() -> Config:
     """
     Retrieve the loaded configuration object.
-    
+
     Returns:
         Config: The validated configuration as a Pydantic model instance.
     """

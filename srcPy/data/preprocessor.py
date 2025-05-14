@@ -9,6 +9,7 @@ from srcPy.utils.exceptions import DataValidationError
 logger = logging.getLogger(__name__)
 config = get_config()
 
+
 class Preprocessor:
     def __init__(self):
         """Initialize preprocessor with configuration from config.yaml."""
@@ -80,9 +81,21 @@ class Preprocessor:
                 slow=self.technical_indicators.macd.slow_period,
                 signal=self.technical_indicators.macd.signal_period
             )
-            df['macd'] = macd[f'MACD_{self.technical_indicators.macd.fast_period}_{self.technical_indicators.macd.slow_period}_{self.technical_indicators.macd.signal_period}']
-            df['macd_signal'] = macd[f'MACDs_{self.technical_indicators.macd.fast_period}_{self.technical_indicators.macd.slow_period}_{self.technical_indicators.macd.signal_period}']
-            df['macd_hist'] = macd[f'MACDh_{self.technical_indicators.macd.fast_period}_{self.technical_indicators.macd.slow_period}_{self.technical_indicators.macd.signal_period}']
+            df['macd'] = macd[
+                f'MACD_{
+                    self.technical_indicators.macd.fast_period}_{
+                    self.technical_indicators.macd.slow_period}_{
+                    self.technical_indicators.macd.signal_period}']
+            df['macd_signal'] = macd[
+                f'MACDs_{
+                    self.technical_indicators.macd.fast_period}_{
+                    self.technical_indicators.macd.slow_period}_{
+                    self.technical_indicators.macd.signal_period}']
+            df['macd_hist'] = macd[
+                f'MACDh_{
+                    self.technical_indicators.macd.fast_period}_{
+                    self.technical_indicators.macd.slow_period}_{
+                    self.technical_indicators.macd.signal_period}']
             if self.technical_indicators.macd.fillna_method == "ffill":
                 df[['macd', 'macd_signal', 'macd_hist']] = df[['macd', 'macd_signal', 'macd_hist']].ffill()
             elif self.technical_indicators.macd.fillna_method == "zero":
@@ -100,7 +113,8 @@ class Preprocessor:
 
         # Compute VWAP
         if self.technical_indicators.vwap and self.technical_indicators.vwap.enabled:
-            df['vwap'] = ta.vwap(df['high'], df['low'], df['close'], df['volume'], anchor="D" if self.technical_indicators.vwap.reset_period == "daily" else None)
+            df['vwap'] = ta.vwap(df['high'], df['low'], df['close'], df['volume'],
+                                 anchor="D" if self.technical_indicators.vwap.reset_period == "daily" else None)
             if self.technical_indicators.vwap.fillna_method == "ffill":
                 df['vwap'] = df['vwap'].ffill()
             elif self.technical_indicators.vwap.fillna_method == "zero":
@@ -109,7 +123,8 @@ class Preprocessor:
 
         # Compute Bollinger Bands
         if self.technical_indicators.bollinger_bands and self.technical_indicators.bollinger_bands.enabled:
-            bb = ta.bbands(df['close'], length=self.technical_indicators.bollinger_bands.window, std=self.technical_indicators.bollinger_bands.num_std)
+            bb = ta.bbands(df['close'], length=self.technical_indicators.bollinger_bands.window,
+                           std=self.technical_indicators.bollinger_bands.num_std)
             df['bb_upper'] = bb[f'BBU_{self.technical_indicators.bollinger_bands.window}_{self.technical_indicators.bollinger_bands.num_std}']
             df['bb_lower'] = bb[f'BBL_{self.technical_indicators.bollinger_bands.window}_{self.technical_indicators.bollinger_bands.num_std}']
             if self.technical_indicators.bollinger_bands.fillna_method == "ffill":
@@ -247,7 +262,7 @@ class Preprocessor:
                 df_ticker = self._process_custom_features(df_ticker)
                 df_ticker = self._normalize_features(df_ticker)
                 df_ticker = df_ticker.dropna()
-                
+
                 # Prepare sequences
                 feature_cols = [
                     col for col in df_ticker.columns

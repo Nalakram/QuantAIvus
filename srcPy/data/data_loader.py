@@ -18,9 +18,11 @@ from srcPy.utils.exceptions import IBConnectionError, DataFetchError, NoDataErro
 config = get_config()
 logger = logging.getLogger(__name__)
 
+
 def log_data_load_metrics(df: pd.DataFrame, source_name: str):
     mlflow.log_metric(f"{source_name}_rows_loaded", len(df))
     mlflow.log_param(f"{source_name}_schema", list(df.columns))
+
 
 class BaseLoader(ABC):
     @abstractmethod
@@ -38,7 +40,9 @@ class BaseLoader(ABC):
         else:
             yield self.load_data()
 
+
 LOADER_REGISTRY = {}
+
 
 def register_loader(name):
     def decorator(cls):
@@ -46,12 +50,14 @@ def register_loader(name):
         return cls
     return decorator
 
+
 @register_loader("csv")
 class CSVLoader(BaseLoader):
     def __init__(self, conf):
         self.path = conf.path
         self.chunksize = conf.chunksize
         self.use_dask = conf.use_dask
+
     def load_data(self):
         if self.use_dask:
             ddf = dd.read_csv(self.path, blocksize=self.chunksize)
@@ -60,26 +66,30 @@ class CSVLoader(BaseLoader):
             df = pd.read_csv(self.path)
         log_data_load_metrics(df, "csv")
         return df
+
     async def stream_data(self):
         for chunk in pd.read_csv(self.path, chunksize=self.chunksize):
             log_data_load_metrics(chunk, "csv_stream")
             yield chunk
             await asyncio.sleep(0)  # Yield control to event loop
 
+
 @register_loader("influxdb")
 class InfluxDBLoader(BaseLoader):
     def __init__(self, conf):
-        for k in ("host","port","token","org","bucket","query"): 
+        for k in ("host", "port", "token", "org", "bucket", "query"):
             if not getattr(conf, k, None):
                 raise ValueError(f"Missing InfluxDB config: {k}")
         self.client = InfluxDBClient(
             url=f"http://{conf.host}:{conf.port}", token=conf.token, org=conf.org
         )
         self.query = conf.query
+
     def load_data(self):
         df = self.client.query_api().query_data_frame(self.query)
         log_data_load_metrics(df, "influxdb")
         return df
+
     async def stream_data(self):
         query_api = self.client.query_api()
         while True:
@@ -90,12 +100,13 @@ class InfluxDBLoader(BaseLoader):
                 yield df
             await asyncio.sleep(config.streaming.sync_interval_seconds)
 
+
 class APIDataLoader(BaseLoader):
     def __init__(self, base_url, endpoints, api_key, cache_hours=1, rate_limit=60):
         self.base_url = base_url
         self.endpoints = endpoints
         self.api_key = api_key
-        self.session = CachedSession('api_cache', backend='sqlite', expire_after=3600*cache_hours)
+        self.session = CachedSession('api_cache', backend='sqlite', expire_after=3600 * cache_hours)
         self.limiter = LimiterSession(per_minute=rate_limit, session=self.session)
         rp = config.error_handling.retry_policy
         self.max_attempts = rp.max_attempts
@@ -189,6 +200,7 @@ class APIDataLoader(BaseLoader):
     async def stream_data(self):
         raise NotImplementedError
 
+
 @register_loader("twitter")
 class TwitterLoader(APIDataLoader):
     def __init__(self, conf):
@@ -199,6 +211,7 @@ class TwitterLoader(APIDataLoader):
             cache_hours=conf.cache_duration_hours,
             rate_limit=conf.rate_limit.max_calls_per_window
         )
+
     async def load_data(self, query: str = "market", max_pages: int = 5) -> pd.DataFrame:
         queries = [{'name': 'user_timeline', 'params': {'query': query, 'max_results': 100}}]
         df = await super().load_data(queries)
@@ -223,6 +236,7 @@ class TwitterLoader(APIDataLoader):
                 async for line in resp.content:
                     yield line
 
+
 @register_loader("alpaca_stream")
 class AlpacaStreamLoader(BaseLoader):
     def __init__(self, conf):
@@ -233,8 +247,10 @@ class AlpacaStreamLoader(BaseLoader):
         self.max_attempts = rp.max_attempts
         self.initial_backoff = rp.initial_backoff_seconds
         self.max_backoff = rp.max_backoff_seconds
+
     def load_data(self):
         raise NotImplementedError("Use stream_data for real-time")
+
     async def stream_data(self):
         import websockets
         headers = {"APCA-API-KEY-ID": self.api_key, "APCA-API-SECRET-KEY": self.api_secret}
@@ -256,7 +272,8 @@ class AlpacaStreamLoader(BaseLoader):
                 backoff = min(self.initial_backoff * (2 ** attempt), self.max_backoff)
                 await asyncio.sleep(backoff)
         raise IBConnectionError(f"WebSocket connection failed after {self.max_attempts} attempts")
-        
+
+
 @register_loader("esg")
 class ESGLoader(APIDataLoader):
     def __init__(self, conf):
@@ -270,8 +287,10 @@ class ESGLoader(APIDataLoader):
 
     async def load_data(self, company_ids=None):
         company_ids = company_ids or ["AAPL", "MSFT"]  # Default companies
-        queries = [{'name': 'company_score', 'params': {'id': cid, 'version': self.endpoints.default_params.version}} for cid in company_ids]
+        queries = [{'name': 'company_score', 'params': {'id': cid,
+                                                        'version': self.endpoints.default_params.version}} for cid in company_ids]
         return await super().load_data(queries)
+
 
 @register_loader("fred")
 class FREDLoader(APIDataLoader):
@@ -289,6 +308,7 @@ class FREDLoader(APIDataLoader):
         queries = [{'name': 'series', 'params': {'series_id': sid, 'file_type': 'json'}} for sid in series_ids]
         return await super().load_data(queries)
 
+
 @register_loader("bloomberg")
 class BloombergLoader(APIDataLoader):
     def __init__(self, conf):
@@ -304,6 +324,7 @@ class BloombergLoader(APIDataLoader):
         topics = topics or ["markets"]
         queries = [{'name': 'news', 'params': {'topic': topic}} for topic in topics]
         return await super().load_data(queries)
+
 
 @register_loader("weather")
 class WeatherLoader(APIDataLoader):
@@ -321,6 +342,7 @@ class WeatherLoader(APIDataLoader):
         queries = [{'name': 'forecast', 'params': {'q': city}} for city in cities]
         return await super().load_data(queries)
 
+
 def build_loader(name: str = None) -> BaseLoader:
     section = config.data_source
     dtype = (name or section.type).lower()
@@ -330,7 +352,8 @@ def build_loader(name: str = None) -> BaseLoader:
         return LOADER_REGISTRY[name](getattr(section, name, section))
     raise ValueError(f"Unsupported loader type: {name}")
     return cls(section)
-    
+
+
 class CompositeLoader(BaseLoader):
     def __init__(self, loaders):
         self.loaders = loaders  # List of BaseLoader instances
@@ -343,10 +366,10 @@ class CompositeLoader(BaseLoader):
                 logger.warning(f"Loader {loader.__class__.__name__} returned empty data")
                 continue
             dfs.append(df)
-        
+
         if not dfs:
             raise ValueError("No data loaded from any source")
-        
+
         # Align timestamps (assuming datetime index)
         combined = dfs[0]
         for df in dfs[1:]:
@@ -399,6 +422,7 @@ class CompositeLoader(BaseLoader):
                 log_data_load_metrics(combined, "composite_stream")
                 yield combined
                 buffer = []
+
 
 async def stream_live(name: str):
     loader = build_loader(name)
