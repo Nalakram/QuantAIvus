@@ -7,7 +7,7 @@ from textwrap import dedent
 
 import setuptools.command.build_py
 import setuptools.command.develop
-from setuptools import setup, find_packages, Command
+from setuptools import Command, find_packages, setup
 
 TOP_DIR = os.path.realpath(os.path.dirname(__file__))
 SRC_DIR = os.path.join(TOP_DIR, 'tf2onnx')
@@ -65,10 +65,9 @@ setup(
     version=VersionInfo.version,
     description='Tensorflow to ONNX converter',
     python_requires='>=3.7,<3.13',
-    extras_require={"test": ["pytest", "pytest-cov", "graphviz", "parameterized", "pyyaml", "timeout-decorator",],},
+    extras_require={"test": ["pytest", "pytest-cov", "graphviz", "parameterized", "pyyaml", "timeout-decorator",], },
     cmdclass=cmdclass,
-    packages=find_packages(where='src', exclude=['ci_build', 'tutorials']),
-    package_dir={'': 'src'},
+    packages=find_packages(include=['tf2onnx', 'tf2onnx.*']),
     license='Apache License v2.0',
     author='ONNX',
     author_email='onnx-technical-discuss@lists.lfaidata.foundation',

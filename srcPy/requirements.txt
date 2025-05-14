@@ -18,8 +18,8 @@ mplfinance==0.12.10b0
 yfinance>=0.2
 
 # API and model interfacing
-grpcio>=1.48.1
-grpcio-tools>=1.48.1
+grpcio>=1.48.1       # working 1.65.5 with apache-beam 2.65.0
+grpcio-tools>=1.48.1 # working 1.65.5 with apache-beam 2.65.0
 pyyaml>=6.0
 ib_insync>=0.9.70  # Updated to allow newer versions
 tenacity>=8.0  # Added for IB retry logic in ib_api.py
@@ -27,7 +27,7 @@ tenacity>=8.0  # Added for IB retry logic in ib_api.py
 # Machine learning and ONNX conversion
 tensorflow==2.19.0
 onnx==1.17.0
-tf2onnx   @ file:patchedLibs/tensorflow-onnx-1.17.0
+tf2onnx @ file:///D:/Coding_Projects/MarketMind/patchedLibs/tensorflow-onnx-1.17.0
 skl2onnx>=1.14
 onnxruntime>=1.14  # Added for Python-side inference
 
