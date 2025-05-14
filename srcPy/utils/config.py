@@ -8,7 +8,7 @@ from typing import Optional
 
 import yaml
 from jsonschema import validate, ValidationError as SchemaValidationError
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel, ValidationError
 
 from srcPy.utils.exceptions import ConfigValidationError
 from srcPy.utils.logger import logger

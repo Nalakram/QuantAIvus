@@ -31,6 +31,7 @@ per-file-ignores =
     srcPy/models/informer_model.py:E302
     srcPy/utils/exceptions.py:E302
     srcPy/utils/validators.py:E302
+    srcPy/data/ib_api.py:E302,E305
 
 # Optional: Enable docstring checking (if using flake8-docstrings)
 docstring-convention = google
