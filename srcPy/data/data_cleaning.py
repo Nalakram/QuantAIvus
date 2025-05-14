@@ -1,14 +1,16 @@
 import logging
-import pandas as pd
-import numpy as np
-import mlflow
 from abc import ABC, abstractmethod
+from collections import deque
+
+import mlflow
+import numpy as np
+import pandas as pd
+from pandas.tseries.holiday import USFederalHolidayCalendar
+from prometheus_client import Gauge
+from pyod.models.ecod import ECOD
 from sklearn.ensemble import IsolationForest
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from pandas.tseries.holiday import USFederalHolidayCalendar
-from collections import deque
-from pyod.models.ecod import ECOD
-from prometheus_client import Gauge
+
 from srcPy.utils.config import get_config
 from srcPy.utils.exceptions import DataValidationError
 
@@ -16,8 +18,14 @@ config = get_config()
 logger = logging.getLogger(__name__)
 
 # Prometheus metrics
-streaming_latency = Gauge("streaming_cleaner_latency", "Latency of streaming cleaner")
-buffer_length = Gauge("streaming_buffer_length", "Current length of streaming buffer")
+streaming_latency = Gauge(
+    "streaming_cleaner_latency",
+    "Latency of streaming cleaner"
+)
+buffer_length = Gauge(
+    "streaming_buffer_length",
+    "Current length of streaming buffer"
+)
 
 class CleaningStep(ABC):
     @abstractmethod
