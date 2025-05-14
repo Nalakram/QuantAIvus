@@ -67,7 +67,7 @@ setup(
     python_requires='>=3.7,<3.13',
     extras_require={"test": ["pytest", "pytest-cov", "graphviz", "parameterized", "pyyaml", "timeout-decorator",],},
     cmdclass=cmdclass,
-    packages=find_packages(),
+    packages=find_packages(exclude=['ci_build', 'tutorials']),
     license='Apache License v2.0',
     author='ONNX',
     author_email='onnx-technical-discuss@lists.lfaidata.foundation',

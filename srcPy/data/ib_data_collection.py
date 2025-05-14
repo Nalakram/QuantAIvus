@@ -66,7 +66,7 @@ def _bars_to_df(bars: List[BarData]) -> pd.DataFrame:
             df = df.ffill()
 
         return df[['open', 'high', 'low', 'close', 'volume', 'average', 'barCount']]
-    except IBConnectionError as e:
+    except IBConnectionError:
         raise
     except Exception as e:
         raise DataFetchError(f"Failed to convert bars to DataFrame: {str(e)}") from e
