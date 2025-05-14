@@ -27,15 +27,18 @@ buffer_length = Gauge(
     "Current length of streaming buffer"
 )
 
+
 class CleaningStep(ABC):
     @abstractmethod
     def apply(self, df: pd.DataFrame) -> pd.DataFrame:
         pass
 
+
 class MissingImputer(CleaningStep):
     def __init__(self, method, params):
         self.method = method
         self.params = params
+
     def apply(self, df):
         before = df.isna().sum().sum()
         if self.method == 'forward_fill':
@@ -43,40 +46,45 @@ class MissingImputer(CleaningStep):
             if self.params.get('backward_fill', False):
                 df = df.fillna(method='bfill')
         elif self.method == 'interpolate':
-            df = df.interpolate(method=self.params.get('method','linear'), limit_direction='both')
+            df = df.interpolate(method=self.params.get('method', 'linear'), limit_direction='both')
         mlflow.log_metric('missing_imputed', before - df.isna().sum().sum())
         return df
+
 
 class OutlierHandler(CleaningStep):
     def __init__(self, method, params):
         self.method = method
         self.params = params
+
     def apply(self, df):
         num = df.select_dtypes(include=[np.number])
         mask = pd.DataFrame(False, index=df.index, columns=num.columns)
         if self.method == 'zscore':
             z = (num - num.mean()) / num.std(ddof=0)
-            mask = z.abs() > self.params.get('threshold',3)
+            mask = z.abs() > self.params.get('threshold', 3)
             df[num.columns] = num.mask(mask)
         elif self.method == 'iqr':
             Q1, Q3 = num.quantile(0.25), num.quantile(0.75)
             IQR = Q3 - Q1
-            mask = (num < Q1 - self.params['factor']*IQR) | (num > Q3 + self.params['factor']*IQR)
+            mask = (num < Q1 - self.params['factor'] * IQR) | (num > Q3 + self.params['factor'] * IQR)
             df[num.columns] = num.mask(mask)
         mlflow.log_metric('outliers_removed', mask.sum().sum())
-        return df.fillna(method='ffill') if self.method in ('zscore','iqr') else df
+        return df.fillna(method='ffill') if self.method in ('zscore', 'iqr') else df
+
 
 class Denoiser(CleaningStep):
     def __init__(self, method, params):
         self.method = method
         self.params = params
+
     def apply(self, df):
         num = df.select_dtypes(include=[np.number])
         if self.method == 'ewm':
-            span = self.params.get('span',5)
+            span = self.params.get('span', 5)
             df[num.columns] = num.apply(lambda x: x.ewm(span=span).mean())
         mlflow.log_metric('denoise_applied', 1)
         return df
+
 
 class IncrementalRSI:
     def __init__(self, window):
@@ -101,13 +109,16 @@ class IncrementalRSI:
         avg_loss = sum(self.losses) / self.window
         rs = avg_gain / avg_loss if avg_loss != 0 else np.inf
         return 100 - (100 / (1 + rs))
-        
+
+
 class IncrementalRSIStep(CleaningStep):
     def __init__(self, window):
         self.rsi = IncrementalRSI(window)
+
     def apply(self, df):
         df['rsi'] = [self.rsi.update(p) for p in df['close']]
         return df
+
 
 class IncrementalMACD:
     def __init__(self, fast, slow, signal):
@@ -131,14 +142,17 @@ class IncrementalMACD:
         self.macd = self.ema_fast - self.ema_slow
         self.macd_signal = (self.macd * (2 / (self.signal + 1))) + (self.macd_signal * (1 - (2 / (self.signal + 1))))
         return self.macd, self.macd_signal
-        
+
+
 class IncrementalMACDStep(CleaningStep):
     def __init__(self, fast, slow, signal):
         self.macd = IncrementalMACD(fast, slow, signal)
+
     def apply(self, df):
         out = [self.macd.update(p) for p in df['close']]
         df['macd'], df['macd_signal'] = zip(*out)
         return df
+
 
 class SentimentExtractor(CleaningStep):
     def __init__(self, cfg):
@@ -157,6 +171,7 @@ class SentimentExtractor(CleaningStep):
             df['sentiment'] = 0.0
             return df
         # Validate text data
+
         def compute_sentiment(text):
             if not isinstance(text, str) or not text.strip():
                 logger.debug(
@@ -166,7 +181,7 @@ class SentimentExtractor(CleaningStep):
                 )
                 return 0.0
             return self.model.polarity_scores(text)['compound']
-        
+
         df['sentiment'] = df['text'].apply(compute_sentiment)
         mlflow.log_metric('sentiment_rows_processed', len(df))
         logger.info(
@@ -177,11 +192,13 @@ class SentimentExtractor(CleaningStep):
         )
         return df
 
+
 class CalendarFeatures(CleaningStep):
     def __init__(self, cfg):
         self.day = cfg.day_of_week
         self.holiday = cfg.is_holiday
         self.calendar = USFederalHolidayCalendar()
+
     def apply(self, df):
         df = df.copy()
         df.index = pd.to_datetime(df.index)
@@ -191,6 +208,7 @@ class CalendarFeatures(CleaningStep):
             holidays = self.calendar.holidays(start=df.index.min(), end=df.index.max())
             df['is_holiday'] = df.index.isin(holidays)
         return df
+
 
 class AnomalyDetector(CleaningStep):
     def __init__(self, cfg):
@@ -218,6 +236,7 @@ class AnomalyDetector(CleaningStep):
         self.counter += len(df)
         return df[mask]
 
+
 class StreamingIsolationForest:
     def __init__(self, contamination, refit_every, window_size=1000):
         self.contamination = contamination
@@ -241,28 +260,34 @@ class StreamingIsolationForest:
             self.fit(np.array(self.buffer))
         if len(self.buffer) < self.window_size:
             return np.ones(len(df), dtype=bool)  # Not enough data to detect anomalies
-        return self.model.predict(num) == 1 
+        return self.model.predict(num) == 1
+
 
 class StreamingAnomalyStep(CleaningStep):
     def __init__(self, contamination, refit_every):
         self.detector = StreamingIsolationForest(contamination, refit_every)
+
     def apply(self, df):
         mask = self.detector.predict(df.select_dtypes('number'))
-        return df[mask]   
+        return df[mask]
+
 
 class CleanerPipeline:
     def __init__(self, steps):
         self.steps = steps
+
     def run(self, df, distributed=False):
         if distributed and len(df) > config.distributed_processing.min_rows_for_distributed:
             import dask.dataframe as dd
             ddf = dd.from_pandas(df, npartitions=config.distributed_processing.num_workers)
             return ddf.map_partitions(lambda x: self._run_partition(x)).compute()
         return self._run_partition(df)
+
     def _run_partition(self, df):
         for step in self.steps:
             df = step.apply(df)
         return df
+
 
 class StreamingCleanerPipeline(CleanerPipeline):
     def __init__(self, steps, buffer_size=100, window=252):
@@ -282,7 +307,8 @@ class StreamingCleanerPipeline(CleanerPipeline):
                 df = pd.DataFrame(list(self.buffer))
                 cleaned = self.run(df)
                 yield cleaned
-                
+
+
 class ValidationStep(CleaningStep):
     def __init__(self, required_columns=None):
         self.required_columns = required_columns or ['open', 'high', 'low', 'close', 'volume']
@@ -328,7 +354,8 @@ class ValidationStep(CleaningStep):
         logger.info("Data validation passed", validation_step="completed")
         mlflow.log_metric('validation_passed', 1)
         return df
-        
+
+
 class RSICalculator(CleaningStep):
     def __init__(self, cfg):
         self.enabled = cfg.enabled
@@ -349,6 +376,7 @@ class RSICalculator(CleaningStep):
         elif self.fillna_method == 'zero':
             df['rsi'] = df['rsi'].fillna(0)
         return df
+
 
 class DataCleaner:
     def __init__(self, cfg=None, streaming=False):

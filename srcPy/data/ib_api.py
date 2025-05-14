@@ -7,24 +7,27 @@ from srcPy.utils.exceptions import IBConnectionError
 from srcPy.utils.logger import logger
 from pydantic import BaseModel
 
+
 class IBConfig(BaseModel):
     host: str
     port: int
     client_id: int
 
+
 ib_cfg = IBConfig(**config['ib_api'])
+
 
 @contextmanager
 def ib_connection() -> Iterator[IB]:
     """
     Context manager for Interactive Brokers API connection.
-    
+
     Yields:
         IB: Connected IB object for API interactions.
-    
+
     Raises:
         IBConnectionError: If connection fails after 3 retries.
-    
+
     Notes:
         Retries up to 3 times with exponential backoff (1-10 seconds) on ConnectionError.
     """
