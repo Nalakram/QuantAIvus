@@ -1,0 +1,385 @@
+# ===========================================================================
+# data/config.yaml
+# Version:        1.1
+# Schema:         ./config_schema.json      # JSON‑Schema for CI validation
+# Description:    Extended pipeline settings for MarketMind, incl. HFT, alt data,
+#                 anomaly detection, backtesting, and compliance.
+# ===========================================================================
+
+version: "1.1"                                   # Config file version
+schema_uri: "./config_schema.json"               # Path to JSON‑Schema for CI
+
+# 1. PRIMARY DATA SOURCE
+
+data_source:
+  type: "CSV"                                    # "CSV" or "InfluxDB"
+  csv:
+    path: "data/raw/historical_prices_ib.csv"
+    chunksize: 100_000
+    use_dask: true                               # leverage parallel processing
+    compression: "gzip"                          # e.g., "gzip", "bz2", or "none"
+    data_format: "ohlcv"                        # expected data structure
+  influxdb:                                      # ignored when type == "CSV"
+    host: "localhost"
+    port: 8086
+    token: "${INFLUXDB_TOKEN}"
+    org: "my-org"
+    bucket: "primary_data"
+    query: 'from(bucket:"primary_data") |> range(start:-30d)'
+
+  # Real‑time market data APIs for HFT
+  real_time_market_data:
+    interactive_brokers:
+      host: "127.0.0.1"
+      port: 7497
+      client_id: 1
+      subscription_topics: ["stocks", "options", "TICK_PRICE", "TICK_SIZE"]
+      api_key: "${IB_API_KEY}"
+      endpoint: "wss://api.ibkr.com/v1"
+      connection_timeout_seconds: 10
+      priority: 1
+    alpaca:
+      base_url: "https://paper-api.alpaca.markets"
+      api_key: "${ALPACA_KEY}"
+      api_secret: "${ALPACA_SECRET}"
+      subscription_topics: ["trades", "quotes", "TICK_STREAM"]
+      endpoint: "wss://stream.data.alpaca.markets/v2"
+      connection_timeout_seconds: 10
+      priority: 2
+
+# 2. ALTERNATIVE DATA SOURCES
+
+alternative_data:
+  twitter:
+    base_url: "https://api.twitter.com/2"
+    bearer_token: "${TWITTER_BEARER_TOKEN}"
+    authentication_type: "bearer"
+    endpoints:
+      user_timeline: "/tweets"
+    default_params:
+      max_results: 100
+    rate_limit:
+      max_calls_per_window: 450
+      window_seconds: 900
+    retry_after_header: "Retry-After"
+    timeout_seconds: 10
+    cache_duration_hours: 24
+    data_resolution: "hourly"
+  esg:
+    base_url: "https://api.esgprovider.com/v1"
+    api_key: "${ESG_API_KEY}"
+    authentication_type: "bearer"
+    endpoints:
+      company_score: "/score"
+    default_params:
+      version: "2025-01"
+    timeout_seconds: 15
+    cache_duration_hours: 24
+    data_resolution: "daily"
+  fred:
+    base_url: "https://api.stlouisfed.org"
+    api_key: "${FRED_API_KEY}"
+    authentication_type: "bearer"
+    endpoints:
+      series: "/fred/series/observations"
+    default_params:
+      file_type: "json"
+    timeout_seconds: 10
+    cache_duration_hours: 24
+    data_resolution: "daily"
+  bloomberg:
+    base_url: "https://api.bloomberg.com"
+    api_key: "${BBG_API_KEY}"
+    authentication_type: "bearer"
+    endpoints:
+      news: "/news"
+    timeout_seconds: 10
+    cache_duration_hours: 24
+    data_resolution: "hourly"
+  weather:
+    base_url: "https://api.openweathermap.org/data/2.5"
+    api_key: "${WEATHER_API_KEY}"
+    authentication_type: "bearer"
+    endpoints:
+      forecast: "/forecast"
+    data_resolution: "hourly"
+    cache_duration_hours: 24
+
+# 3. CLEANING & PREPROCESSING
+
+cleaning:
+  missing_values:
+    method: "forward_fill"
+    params:
+      backward_fill: true
+  outliers:
+    method: "zscore"
+    params:
+      threshold: 3.0
+  denoising:
+    method: "ewm"
+    params:
+      span: 10
+
+preprocessing:
+  technical_indicators:
+    rsi:
+      enabled: true
+      window: 14
+      fillna_method: "ffill"
+    macd:
+      enabled: true
+      fast_period: 12
+      slow_period: 26
+      signal_period: 9
+      fillna_method: "ffill"
+    atr:
+      enabled: true
+      window: 14
+      fillna_method: "ffill"
+    vwap:
+      enabled: true
+      reset_period: "daily"
+      fillna_method: "ffill"
+    bollinger_bands:
+      enabled: false
+      window: 20
+      num_std: 2
+      fillna_method: "ffill"
+  normalization:
+    method: "zscore"
+    rolling_window: 252
+    clip_extremes:
+      min: -3
+      max: 3
+  custom_features:
+    sentiment:
+      enabled: true
+      source: "twitter"
+      sentiment_model: "vader"
+    esg_normalized:
+      enabled: false
+      method: "minmax"
+    calendar_features:
+      day_of_week: true
+      is_holiday: true
+    fundamental_features:
+      earnings_dates: true
+      dividends: true
+  custom_features:
+    sentiment:
+      enabled: false
+      source: "twitter"
+      sentiment_model: "vader"                 # NLP setting for tweets
+    esg_normalized:
+      enabled: false
+      method: "minmax"                         # ESG score normalization
+    calendar_features:
+      day_of_week: true
+      is_holiday: true
+    fundamental_features:
+      earnings_dates: true
+      dividends: true
+
+# 4. STREAMING / REAL-TIME CONFIGURATION
+
+streaming:
+  batch_size: 500
+  update_interval_seconds: 60
+  buffer_size: 1_000
+  max_latency_ms: 100                          # enforce low-latency for HFT
+  buffer_retention_seconds: 300                # memory retention policy
+  event_triggers:
+    market_open: "09:30"
+    market_close: "16:00"
+  priority_queue: "high_frequency"
+  failure_recovery:
+    restart_interval_seconds: 300
+  sync_interval_seconds: 10
+
+# 5. ERROR-HANDLING
+
+error_handling:
+  retry_policy:
+    max_attempts: 5
+    initial_backoff_seconds: 1
+    max_backoff_seconds: 30
+    retry_strategy: "exponential"
+  validation_thresholds:
+    max_missing_ratio: 0.05
+    max_outlier_ratio: 0.01
+  fallback:
+    twitter: "cached_data"
+    esg: "last_success"
+    data_source: "error"
+  alerting:
+    enabled: true
+    channel: "slack"
+    critical_failures: ["data_load", "model_inference"]
+    alert_severity: ["critical", "warning"]
+  fallback_timeout_seconds: 60
+
+# 6. LOGGING & METRICS
+
+logging:
+  level: "INFO"
+  outputs:
+    console: true
+    file:
+      enabled: true
+      path: "logs/marketmind.log"
+      rotation: "daily"
+    influxdb:
+      enabled: false
+      host: "localhost"
+      port: 8086
+      token: "${INFLUXDB_TOKEN}"
+      org: "my-org"
+      bucket: "metrics"
+  metrics_report_interval_seconds: 300
+  custom_metrics:
+    - "data_load_time"
+    - "outlier_count"
+  model_metrics:
+    - "prediction_latency"
+    - "throughput"
+  metric_aggregation:
+    aggregation_window_seconds: 60
+  log_sampling_rate: 0.1
+  dashboard_config:
+    grafana_url: "http://localhost:3000"
+
+# 7. SECURITY & ENCRYPTION
+
+security:
+  encryption:
+    at_rest: true
+    in_transit: true
+    encryption_algorithm: "AES-256"
+  key_management: "aws_kms"
+  credentials:
+    twitter_api_key: "${TWITTER_BEARER_TOKEN}"
+    esg_api_key: "${ESG_API_KEY}"
+  compliance:
+    audit_log: true
+    retention_days: 90
+    audit_frequency_days: 30
+  data_anonymization:
+    anonymize_pii: true
+
+# 8. MODEL & TRAINING SETTINGS
+
+model:
+  model_type: "transformer"                    # "lstm", "transformer", etc.
+  architecture:
+    num_layers: 2
+    hidden_size: 128
+    dropout: 0.1
+  sequence_length: 60
+  prediction_horizon: 1
+  feature_list:
+    - "open"
+    - "high"
+    - "low"
+    - "close"
+    - "volume"
+    - "rsi"
+    - "macd"
+  training_device: "cuda"
+  model_checkpoint:
+    checkpoint_frequency: 10
+  feature_importance:
+    method: "shap"
+  onnx_export:
+    enabled: true
+    opset_version: 12
+
+# 9. HYPERPARAMETER TUNING
+
+hyperparameter_tuning:
+  tuner: "bayesian"                            # "grid", "random", "bayesian"
+  max_trials: 50
+  early_stopping pix:
+    patience: 5
+  resource_limits:
+    max_cpu_per_trial: 2
+    max_gpu_per_trial: 1
+  search_space:
+    learning_rate:
+      min: 1e-5
+      max: 1e-2
+      scale: "log"
+    batch_size:
+      values: [32, 64, 128]
+    sequence_length:
+      values: [30, 60, 90]
+  parallel_trials: 4
+  metric_objective: "minimize_loss"
+  pruning_strategy: "median"
+
+# 10. BACKTESTING
+
+backtesting:
+  initial_capital: 100_000
+  transaction_cost_rate: 0.001
+  slippage_rate: 0.0005
+  strategy_list:
+    - "momentum"
+    - "mean_reversion"
+  risk_management:
+    stop_loss: 0.02
+    max_drawdown: 0.1
+  date_range:
+    start: "2020-01-01"
+    end: "2024-12-31"
+  performance_metrics:
+    - "sharpe_ratio"
+    - "max_drawdown"
+    - "total_return"
+  position_sizing:
+    method: "kelly_criterion"
+  benchmark_index: "SPY"
+  backtest_frequency: "monthly"
+
+# 11. ANOMALY DETECTION
+
+anomaly_detection:
+  method: "isolation_forest"
+  params:
+    contamination: 0.01
+  refit_interval_days: 30
+
+# 12. DATA AUGMENTATION
+
+data_augmentation:
+  enabled: true
+  noise_level: 0.01
+  method: "gan"
+  augmentation_ratio: 0.2
+
+# 13. DISTRIBUTED PROCESSING
+
+distributed_processing:
+  framework: "dask"
+  num_workers: 4
+  memory_per_worker: "4GB"
+  cluster_type: "local"
+
+# 14. MONITORING
+
+monitoring:
+  data_drift:
+    enabled: true
+    threshold: 0.05
+    alert_channel: "slack"
+  concept_drift:
+    method: "ks_test"
+
+experiment_tracking:
+  tool: "mlflow"
+  tracking_uri: "http://localhost:5000"
+
+model_registry:
+  staging_version: "v1.0"
+  promotion_criteria:
+    min_accuracy: 0.85

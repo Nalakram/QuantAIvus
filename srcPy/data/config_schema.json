@@ -1,0 +1,1525 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [
+        "version",
+        "schema_uri",
+        "data_source",
+        "alternative_data",
+        "cleaning",
+        "preprocessing",
+        "streaming",
+        "error_handling",
+        "logging",
+        "security",
+        "model",
+        "hyperparameter_tuning",
+        "backtesting",
+        "anomaly_detection",
+        "data_augmentation",
+        "distributed_processing",
+        "monitoring",
+        "experiment_tracking",
+        "model_registry"
+    ],
+    "properties": {
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+$"
+        },
+        "schema_uri": {
+            "type": "string",
+            "format": "uri-reference"
+        },
+        "data_source": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+                "type": {
+                    "enum": ["CSV", "InfluxDB"]
+                },
+                "csv": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "chunksize": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "use_dask": {
+                            "type": "boolean"
+                        },
+                        "compression": {
+                            "enum": ["gzip", "bz2", "none"]
+                        },
+                        "data_format": {
+                            "enum": ["ohlcv"]
+                        }
+                    },
+                    "required": ["path", "chunksize", "use_dask", "compression", "data_format"],
+                    "additionalProperties": false
+                },
+                "influxdb": {
+                    "type": "object",
+                    "properties": {
+                        "host": {
+                            "type": "string"
+                        },
+                        "port": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "token": {
+                            "type": "string"
+                        },
+                        "org": {
+                            "type": "string"
+                        },
+                        "bucket": {
+                            "type": "string"
+                        },
+                        "query": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["host", "port", "token", "org", "bucket", "query"],
+                    "additionalProperties": false
+                },
+                "real_time_market_data": {
+                    "type": "object",
+                    "properties": {
+                        "interactive_brokers": {
+                            "type": "object",
+                            "properties": {
+                                "host": {
+                                    "type": "string"
+                                },
+                                "port": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "client_id": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                "subscription_topics": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "api_key": {
+                                    "type": "string"
+                                },
+                                "endpoint": {
+                                    "type": "string",
+                                    "format": "uri"
+                                },
+                                "connection_timeout_seconds": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "priority": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            },
+                            "required": [
+                                "host",
+                                "port",
+                                "client_id",
+                                "subscription_topics",
+                                "api_key",
+                                "endpoint",
+                                "connection_timeout_seconds",
+                                "priority"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "alpaca": {
+                            "type": "object",
+                            "properties": {
+                                "base_url": {
+                                    "type": "string",
+                                    "format": "uri"
+                                },
+                                "api_key": {
+                                    "type": "string"
+                                },
+                                "api_secret": {
+                                    "type": "string"
+                                },
+                                "subscription_topics": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "endpoint": {
+                                    "type": "string",
+                                    "format": "uri"
+                                },
+                                "connection_timeout_seconds": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "priority": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            },
+                            "required": [
+                                "base_url",
+                                "api_key",
+                                "api_secret",
+                                "subscription_topics",
+                                "endpoint",
+                                "connection_timeout_seconds",
+                                "priority"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "CSV"
+                    }
+                }
+            },
+            "then": {
+                "required": ["csv"]
+            },
+            "else": {
+                "required": ["influxdb"]
+            },
+            "additionalProperties": false
+        },
+        "alternative_data": {
+            "type": "object",
+            "properties": {
+                "twitter": {
+                    "type": "object",
+                    "properties": {
+                        "base_url": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "bearer_token": {
+                            "type": "string"
+                        },
+                        "authentication_type": {
+                            "enum": ["bearer", "oauth"]
+                        },
+                        "endpoints": {
+                            "type": "object",
+                            "properties": {
+                                "user_timeline": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["user_timeline"],
+                            "additionalProperties": true
+                        },
+                        "default_params": {
+                            "type": "object",
+                            "properties": {
+                                "max_results": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            },
+                            "required": ["max_results"],
+                            "additionalProperties": false
+                        },
+                        "rate_limit": {
+                            "type": "object",
+                            "properties": {
+                                "max_calls_per_window": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "window_seconds": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            },
+                            "required": ["max_calls_per_window", "window_seconds"],
+                            "additionalProperties": false
+                        },
+                        "retry_after_header": {
+                            "type": "string"
+                        },
+                        "timeout_seconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "cache_duration_hours": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "data_resolution": {
+                            "enum": ["hourly", "daily"]
+                        }
+                    },
+                    "required": [
+                        "base_url",
+                        "bearer_token",
+                        "authentication_type",
+                        "endpoints",
+                        "default_params",
+                        "rate_limit",
+                        "retry_after_header",
+                        "timeout_seconds",
+                        "cache_duration_hours",
+                        "data_resolution"
+                    ],
+                    "additionalProperties": false
+                },
+                "esg": {
+                    "type": "object",
+                    "properties": {
+                        "base_url": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "api_key": {
+                            "type": "string"
+                        },
+                        "authentication_type": {
+                            "enum": ["bearer", "oauth"]
+                        },
+                        "endpoints": {
+                            "type": "object",
+                            "properties": {
+                                "company_score": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["company_score"],
+                            "additionalProperties": false
+                        },
+                        "default_params": {
+                            "type": "object",
+                            "properties": {
+                                "version": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["version"],
+                            "additionalProperties": false
+                        },
+                        "timeout_seconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "cache_duration_hours": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "data_resolution": {
+                            "enum": ["hourly", "daily"]
+                        }
+                    },
+                    "required": [
+                        "base_url",
+                        "api_key",
+                        "authentication_type",
+                        "endpoints",
+                        "default_params",
+                        "timeout_seconds",
+                        "cache_duration_hours",
+                        "data_resolution"
+                    ],
+                    "additionalProperties": false
+                },
+                "fred": {
+                    "type": "object",
+                    "properties": {
+                        "base_url": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "api_key": {
+                            "type": "string"
+                        },
+                        "authentication_type": {
+                            "enum": ["bearer", "oauth"]
+                        },
+                        "endpoints": {
+                            "type": "object",
+                            "properties": {
+                                "series": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["series"],
+                            "additionalProperties": false
+                        },
+                        "default_params": {
+                            "type": "object",
+                            "properties": {
+                                "file_type": {
+                                    "enum": ["json"]
+                                }
+                            },
+                            "required": ["file_type"],
+                            "additionalProperties": false
+                        },
+                        "timeout_seconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "cache_duration_hours": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "data_resolution": {
+                            "enum": ["hourly", "daily"]
+                        }
+                    },
+                    "required": [
+                        "base_url",
+                        "api_key",
+                        "authentication_type",
+                        "endpoints",
+                        "default_params",
+                        "timeout_seconds",
+                        "cache_duration_hours",
+                        "data_resolution"
+                    ],
+                    "additionalProperties": false
+                },
+                "bloomberg": {
+                    "type": "object",
+                    "properties": {
+                        "base_url": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "api_key": {
+                            "type": "string"
+                        },
+                        "authentication_type": {
+                            "enum": ["bearer", "oauth"]
+                        },
+                        "endpoints": {
+                            "type": "object",
+                            "properties": {
+                                "news": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["news"],
+                            "additionalProperties": false
+                        },
+                        "timeout_seconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "cache_duration_hours": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "data_resolution": {
+                            "enum": ["hourly", "daily"]
+                        }
+                    },
+                    "required": [
+                        "base_url",
+                        "api_key",
+                        "authentication_type",
+                        "endpoints",
+                        "timeout_seconds",
+                        "cache_duration_hours",
+                        "data_resolution"
+                    ],
+                    "additionalProperties": false
+                },
+                "weather": {
+                    "type": "object",
+                    "properties": {
+                        "base_url": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "api_key": {
+                            "type": "string"
+                        },
+                        "authentication_type": {
+                            "enum": ["bearer", "oauth"]
+                        },
+                        "endpoints": {
+                            "type": "object",
+                            "properties": {
+                                "forecast": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["forecast"],
+                            "additionalProperties": false
+                        },
+                        "data_resolution": {
+                            "enum": ["hourly", "daily"]
+                        },
+                        "cache_duration_hours": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    "required": [
+                        "base_url",
+                        "api_key",
+                        "authentication_type",
+                        "endpoints",
+                        "data_resolution",
+                        "cache_duration_hours"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "cleaning": {
+            "type": "object",
+            "required": ["missing_values", "outliers", "denoising"],
+            "properties": {
+                "missing_values": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "enum": ["forward_fill"]
+                        },
+                        "params": {
+                            "type": "object",
+                            "properties": {
+                                "backward_fill": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "required": ["backward_fill"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": ["method", "params"],
+                    "additionalProperties": false
+                },
+                "outliers": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "enum": ["zscore"]
+                        },
+                        "params": {
+                            "type": "object",
+                            "properties": {
+                                "threshold": {
+                                    "type": "number",
+                                    "minimum": 0
+                                }
+                            },
+                            "required": ["threshold"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": ["method", "params"],
+                    "additionalProperties": false
+                },
+                "denoising": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "enum": ["ewm"]
+                        },
+                        "params": {
+                            "type": "object",
+                            "properties": {
+                                "span": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            },
+                            "required": ["span"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": ["method", "params"],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "preprocessing": {
+            "type": "object",
+            "required": ["technical_indicators", "normalization", "custom_features", "calendar_features", "fundamental_features"],
+            "properties": {
+                "technical_indicators": {
+                    "type": "object",
+                    "properties": {
+                        "rsi": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "window": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "fillna_method": {
+                                    "enum": ["ffill", "zero"]
+                                }
+                            },
+                            "required": ["enabled", "window", "fillna_method"],
+                            "additionalProperties": true
+                        },
+                        "macd": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "fast_period": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "slow_period": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "signal_period": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "fillna_method": {
+                                    "enum": ["ffill", "zero"]
+                                }
+                            },
+                            "required": ["enabled", "fast_period", "slow_period", "signal_period", "fillna_method"],
+                            "additionalProperties": false
+                        },
+                        "atr": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "window": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "fillna_method": {
+                                    "enum": ["ffill", "zero"]
+                                }
+                            },
+                            "required": ["enabled", "window", "fillna_method"],
+                            "additionalProperties": false
+                        },
+                        "vwap": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "reset_period": {
+                                    "enum": ["daily"]
+                                },
+                                "fillna_method": {
+                                    "enum": ["ffill", "zero"]
+                                }
+                            },
+                            "required": ["enabled", "reset_period", "fillna_method"],
+                            "additionalProperties": false
+                        },
+                        "bollinger_bands": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "window": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "num_std": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "fillna_method": {
+                                    "enum": ["ffill", "zero"]
+                                }
+                            },
+                            "required": ["enabled", "window", "num_std", "fillna_method"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "normalization": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "enum": ["zscore", "minmax", "none"]
+                        },
+                        "rolling_window": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "clip_extremes": {
+                            "type": "object",
+                            "properties": {
+                                "min": {
+                                    "type": "number"
+                                },
+                                "max": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["min", "max"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": ["method", "rolling_window", "clip_extremes"],
+                    "additionalProperties": false
+                },
+                "custom_features": {
+                    "type": "object",
+                    "properties": {
+                        "sentiment": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "source": {
+                                    "enum": ["twitter"]
+                                },
+                                "sentiment_model": {
+                                    "enum": ["vader"]
+                                }
+                            },
+                            "required": ["enabled", "source", "sentiment_model"],
+                            "additionalProperties": false
+                        },
+                        "esg_normalized": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "method": {
+                                    "enum": ["minmax"]
+                                }
+                            },
+                            "required": ["enabled", "method"],
+                            "additionalProperties": true
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "calendar_features": {
+                    "type": "object",
+                    "properties": {
+                        "day_of_week": {
+                            "type": "boolean"
+                        },
+                        "is_holiday": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": ["day_of_week", "is_holiday"],
+                    "additionalProperties": false
+                },
+                "fundamental_features": {
+                    "type": "object",
+                    "properties": {
+                        "earnings_dates": {
+                            "type": "boolean"
+                        },
+                        "dividends": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": ["earnings_dates", "dividends"],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "streaming": {
+            "type": "object",
+            "properties": {
+                "batch_size": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "update_interval_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "buffer_size": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "max_latency_ms": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "buffer_retention_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "event_triggers": {
+                    "type": "object",
+                    "properties": {
+                        "market_open": {
+                            "type": "string",
+                            "pattern": "^\\d{2}:\\d{2}$"
+                        },
+                        "market_close": {
+                            "type": "string",
+                            "pattern": "^\\d{2}:\\d{2}$"
+                        }
+                    },
+                    "required": ["market_open", "market_close"],
+                    "additionalProperties": false
+                },
+                "priority_queue": {
+                    "enum": ["high_frequency"]
+                },
+                "failure_recovery": {
+                    "type": "object",
+                    "properties": {
+                        "restart_interval_seconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    "required": ["restart_interval_seconds"],
+                    "additionalProperties": false
+                },
+                "sync_interval_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            },
+            "required": [
+                "batch_size",
+                "update_interval_seconds",
+                "buffer_size",
+                "max_latency_ms",
+                "buffer_retention_seconds",
+                "event_triggers",
+                "priority_queue",
+                "failure_recovery",
+                "sync_interval_seconds"
+            ],
+            "additionalProperties": false
+        },
+        "error_handling": {
+            "type": "object",
+            "properties": {
+                "retry_policy": {
+                    "type": "object",
+                    "properties": {
+                        "max_attempts": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "initial_backoff_seconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "max_backoff_seconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "retry_strategy": {
+                            "enum": ["exponential", "linear"]
+                        }
+                    },
+                    "required": ["max_attempts", "initial_backoff_seconds", "max_backoff_seconds", "retry_strategy"],
+                    "additionalProperties": false
+                },
+                "validation_thresholds": {
+                    "type": "object",
+                    "properties": {
+                        "max_missing_ratio": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                        },
+                        "max_outlier_ratio": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                        }
+                    },
+                    "required": ["max_missing_ratio", "max_outlier_ratio"],
+                    "additionalProperties": false
+                },
+                "fallback": {
+                    "type": "object",
+                    "properties": {
+                        "twitter": {
+                            "enum": ["cached_data"]
+                        },
+                        "esg": {
+                            "enum": ["last_success"]
+                        },
+                        "data_source": {
+                            "enum": ["error"]
+                        }
+                    },
+                    "required": ["twitter", "esg", "data_source"],
+                    "additionalProperties": false
+                },
+                "alerting": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "channel": {
+                            "enum": ["slack"]
+                        },
+                        "critical_failures": {
+                            "type": "array",
+                            "items": {
+                                "enum": ["data_load", "model_inference"]
+                            }
+                        },
+                        "alert_severity": {
+                            "type": "array",
+                            "items": {
+                                "enum": ["critical", "warning"]
+                            }
+                        }
+                    },
+                    "required": ["enabled", "channel", "critical_failures", "alert_severity"],
+                    "additionalProperties": false
+                },
+                "fallback_timeout_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            },
+            "required": ["retry_policy", "validation_thresholds", "fallback", "alerting", "fallback_timeout_seconds"],
+            "additionalProperties": false
+        },
+        "logging": {
+            "type": "object",
+            "properties": {
+                "level": {
+                    "enum": ["INFO"]
+                },
+                "outputs": {
+                    "type": "object",
+                    "properties": {
+                        "console": {
+                            "type": "boolean"
+                        },
+                        "file": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "path": {
+                                    "type": "string"
+                                },
+                                "rotation": {
+                                    "enum": ["daily"]
+                                }
+                            },
+                            "required": ["enabled", "path", "rotation"],
+                            "additionalProperties": false
+                        },
+                        "influxdb": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "host": {
+                                    "type": "string"
+                                },
+                                "port": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "token": {
+                                    "type": "string"
+                                },
+                                "org": {
+                                    "type": "string"
+                                },
+                                "bucket": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["enabled", "host", "port", "token", "org", "bucket"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": ["console", "file", "influxdb"],
+                    "additionalProperties": false
+                },
+                "metrics_report_interval_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "custom_metrics": {
+                    "type": "array",
+                    "items": {
+                        "enum": ["data_load_time", "outlier_count"]
+                    }
+                },
+                "model_metrics": {
+                    "type": "array",
+                    "items": {
+                        "enum": ["prediction_latency", "throughput"]
+                    }
+                },
+                "metric_aggregation": {
+                    "type": "object",
+                    "properties": {
+                        "aggregation_window_seconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    "required": ["aggregation_window_seconds"],
+                    "additionalProperties": false
+                },
+                "log_sampling_rate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "dashboard_config": {
+                    "type": "object",
+                    "properties": {
+                        "grafana_url": {
+                            "type": "string",
+                            "format": "uri"
+                        }
+                    },
+                    "required": ["grafana_url"],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "level",
+                "outputs",
+                "metrics_report_interval_seconds",
+                "custom_metrics",
+                "model_metrics",
+                "metric_aggregation",
+                "log_sampling_rate",
+                "dashboard_config"
+            ],
+            "additionalProperties": false
+        },
+        "security": {
+            "type": "object",
+            "properties": {
+                "encryption": {
+                    "type": "object",
+                    "properties": {
+                        "at_rest": {
+                            "type": "boolean"
+                        },
+                        "in_transit": {
+                            "type": "boolean"
+                        },
+                        "encryption_algorithm": {
+                            "enum": ["AES-256"]
+                        }
+                    },
+                    "required": ["at_rest", "in_transit", "encryption_algorithm"],
+                    "additionalProperties": false
+                },
+                "key_management": {
+                    "enum": ["aws_kms"]
+                },
+                "credentials": {
+                    "type": "object",
+                    "properties": {
+                        "twitter_api_key": {
+                            "type": "string"
+                        },
+                        "esg_api_key": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["twitter_api_key", "esg_api_key"],
+                    "additionalProperties": false
+                },
+                "compliance": {
+                    "type": "object",
+                    "properties": {
+                        "audit_log": {
+                            "type": "boolean"
+                        },
+                        "retention_days": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "audit_frequency_days": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "data_anonymization": {
+                            "type": "object",
+                            "properties": {
+                                "anonymize_pii": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "required": ["anonymize_pii"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": ["audit_log", "retention_days", "audit_frequency_days", "data_anonymization"],
+                    "additionalProperties": false
+                }
+            },
+            "required": ["encryption", "key_management", "credentials", "compliance"],
+            "additionalProperties": false
+        },
+        "model": {
+            "type": "object",
+            "properties": {
+                "model_type": {
+                    "enum": ["transformer", "lstm"]
+                },
+                "architecture": {
+                    "type": "object",
+                    "properties": {
+                        "num_layers": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "hidden_size": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "dropout": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                        }
+                    },
+                    "required": ["num_layers", "hidden_size", "dropout"],
+                    "additionalProperties": false
+                },
+                "sequence_length": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "prediction_horizon": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "feature_list": {
+                    "type": "array",
+                    "items": {
+                        "enum": ["open", "high", "low", "close", "volume", "rsi", "macd"]
+                    }
+                },
+                "training_device": {
+                    "enum": ["cuda"]
+                },
+                "model_checkpoint": {
+                    "type": "object",
+                    "properties": {
+                        "checkpoint_frequency": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    "required": ["checkpoint_frequency"],
+                    "additionalProperties": false
+                },
+                "feature_importance": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "enum": ["shap"]
+                        }
+                    },
+                    "required": ["method"],
+                    "additionalProperties": false
+                },
+                "onnx_export": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "opset_version": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    "required": ["enabled", "opset_version"],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "model_type",
+                "architecture",
+                "sequence_length",
+                "prediction_horizon",
+                "feature_list",
+                "training_device",
+                "model_checkpoint",
+                "feature_importance",
+                "onnx_export"
+            ],
+            "additionalProperties": false
+        },
+        "hyperparameter_tuning": {
+            "type": "object",
+            "properties": {
+                "tuner": {
+                    "enum": ["bayesian"]
+                },
+                "max_trials": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "early_stopping": {
+                    "type": "object",
+                    "properties": {
+                        "patience": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    "required": ["patience"],
+                    "additionalProperties": false
+                },
+                "resource_limits": {
+                    "type": "object",
+                    "properties": {
+                        "max_cpu_per_trial": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "max_gpu_per_trial": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    "required": ["max_cpu_per_trial", "max_gpu_per_trial"],
+                    "additionalProperties": false
+                },
+                "search_space": {
+                    "type": "object",
+                    "properties": {
+                        "learning_rate": {
+                            "type": "object",
+                            "properties": {
+                                "min": {
+                                    "type": "number"
+                                },
+                                "max": {
+                                    "type": "number"
+                                },
+                                "scale": {
+                                    "enum": ["log"]
+                                }
+                            },
+                            "required": ["min", "max", "scale"],
+                            "additionalProperties": false
+                        },
+                        "batch_size": {
+                            "type": "object",
+                            "properties": {
+                                "values": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "required": ["values"],
+                            "additionalProperties": false
+                        },
+                        "sequence_length": {
+                            "type": "object",
+                            "properties": {
+                                "values": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "required": ["values"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": ["learning_rate", "batch_size", "sequence_length"],
+                    "additionalProperties": false
+                },
+                "parallel_trials": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "metric_objective": {
+                    "enum": ["minimize_loss"]
+                },
+                "pruning_strategy": {
+                    "enum": ["median"]
+                }
+            },
+            "required": [
+                "tuner",
+                "max_trials",
+                "early_stopping",
+                "resource_limits",
+                "search_space",
+                "parallel_trials",
+                "metric_objective",
+                "pruning_strategy"
+            ],
+            "additionalProperties": false
+        },
+        "backtesting": {
+            "type": "object",
+            "properties": {
+                "initial_capital": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "transaction_cost_rate": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "slippage_rate": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "strategy_list": {
+                    "type": "array",
+                    "items": {
+                        "enum": ["momentum", "mean_reversion"]
+                    }
+                },
+                "risk_management": {
+                    "type": "object",
+                    "properties": {
+                        "stop_loss": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "max_drawdown": {
+                            "type": "number",
+                            "minimum": 0
+                        }
+                    },
+                    "required": ["stop_loss", "max_drawdown"],
+                    "additionalProperties": false
+                },
+                "date_range": {
+                    "type": "object",
+                    "properties": {
+                        "start": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "end": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    "required": ["start", "end"],
+                    "additionalProperties": false
+                },
+                "performance_metrics": {
+                    "type": "array",
+                    "items": {
+                        "enum": ["sharpe_ratio", "max_drawdown", "total_return"]
+                    }
+                },
+                "position_sizing": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "enum": ["kelly_criterion"]
+                        }
+                    },
+                    "required": ["method"],
+                    "additionalProperties": false
+                },
+                "benchmark_index": {
+                    "enum": ["SPY"]
+                },
+                "backtest_frequency": {
+                    "enum": ["monthly"]
+                }
+            },
+            "required": [
+                "initial_capital",
+                "transaction_cost_rate",
+                "slippage_rate",
+                "strategy_list",
+                "risk_management",
+                "date_range",
+                "performance_metrics",
+                "position_sizing",
+                "benchmark_index",
+                "backtest_frequency"
+            ],
+            "additionalProperties": false
+        },
+        "anomaly_detection": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "enum": ["isolation_forest"]
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "contamination": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 0.5
+                        },
+                        "refit_interval_days": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    "required": ["contamination", "refit_interval_days"],
+                    "additionalProperties": false
+                }
+            },
+            "required": ["method", "params"],
+            "additionalProperties": false
+        },
+        "data_augmentation": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "noise_level": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "method": {
+                    "enum": ["gan"]
+                },
+                "augmentation_ratio": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                }
+            },
+            "required": ["enabled", "noise_level", "method", "augmentation_ratio"],
+            "additionalProperties": false
+        },
+        "distributed_processing": {
+            "type": "object",
+            "properties": {
+                "framework": {
+                    "enum": ["dask"]
+                },
+                "num_workers": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "memory_per_worker": {
+                    "type": "string",
+                    "pattern": "^\\d+GB$"
+                },
+                "cluster_type": {
+                    "enum": ["local", "aws"]
+                }
+            },
+            "required": ["framework", "num_workers", "memory_per_worker", "cluster_type"],
+            "additionalProperties": false
+        },
+        "monitoring": {
+            "type": "object",
+            "properties": {
+                "data_drift": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "threshold": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "alert_channel": {
+                            "enum": ["slack"]
+                        }
+                    },
+                    "required": ["enabled", "threshold", "alert_channel"],
+                    "additionalProperties": false
+                },
+                "concept_drift": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "enum": ["ks_test"]
+                        }
+                    },
+                    "required": ["method"],
+                    "additionalProperties": false
+                }
+            },
+            "required": ["data_drift", "concept_drift"],
+            "additionalProperties": false
+        },
+        "experiment_tracking": {
+            "type": "object",
+            "properties": {
+                "tool": {
+                    "enum": ["mlflow"]
+                },
+                "tracking_uri": {
+                    "type": "string",
+                    "format": "uri"
+                }
+            },
+            "required": ["tool", "tracking_uri"],
+            "additionalProperties": false
+        },
+        "model_registry": {
+            "type": "object",
+            "properties": {
+                "staging_version": {
+                    "type": "string"
+                },
+                "promotion_criteria": {
+                    "type": "object",
+                    "properties": {
+                        "min_accuracy": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                        }
+                    },
+                    "required": ["min_accuracy"],
+                    "additionalProperties": false
+                }
+            },
+            "required": ["staging_version", "promotion_criteria"],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}
