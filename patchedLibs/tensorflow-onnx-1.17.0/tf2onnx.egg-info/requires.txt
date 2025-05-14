@@ -1,0 +1,14 @@
+numpy>=1.14.1
+onnx>=1.4.1
+requests
+six
+flatbuffers>=1.12
+protobuf<6.0dev,>=5.26.1
+
+[test]
+pytest
+pytest-cov
+graphviz
+parameterized
+pyyaml
+timeout-decorator
