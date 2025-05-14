@@ -40,8 +40,10 @@ setup(
     package_data={
         "data": ["data/*.csv"],
     },
-    packages=find_packages(include=["pandas_ta*"]),              # automatically finds all your modules
-    include_package_data=True,                                   # picks up data files via MANIFEST.in
+
+    packages=find_packages(include=["pandas_ta*"]),     # automatically finds all your modules
+    include_package_data=True,                          # picks up data files via MANIFEST.in
+
     install_requires=[
         "numpy>=2.0.0",
         "pandas>=2.1.4",

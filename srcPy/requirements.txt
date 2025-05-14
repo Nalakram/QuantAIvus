@@ -4,7 +4,7 @@
 numpy>=2.0  # Constrained for tensorflow and pandas-ta
 pandas>=1.5
 scikit-learn>=1.2
-pandas-ta @ file:///C:/Users/Nalakram/Downloads/pandas-ta-main-local
+pandas-ta @ file:patchedLibs/pandas-ta-main-local
 joblib>=1.2
 scipy>=1.10  # Added for potential statistical functions
 
@@ -26,7 +26,7 @@ tenacity>=8.0  # Added for IB retry logic in ib_api.py
 # Machine learning and ONNX conversion
 tensorflow==2.19.0
 onnx==1.17.0
-tf2onnx @ file:///C:/Users/Nalakram/Downloads/tensorflow-onnx-1.17.0
+tf2onnx   @ file:patchedLibs/tensorflow-onnx-1.17.0
 skl2onnx>=1.14
 onnxruntime>=1.14  # Added for Python-side inference
 
