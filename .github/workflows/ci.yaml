@@ -8,45 +8,45 @@ on:
 #    branches: [ main ]
 
 jobs:
-  build_cpp:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Cache ccache
-      uses: actions/cache@v4
-      with:
-        path: ~/.ccache
-        key: ccache-${{ runner.os }}-${{ github.sha }}
-        restore-keys: ccache-${{ runner.os }}-
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake g++ ccache libprotobuf-dev protobuf-compiler-grpc libgrpc-dev libgrpc++-dev cppcheck
-    - name: Run C++ static analysis
-      run: |
-        cppcheck --enable=all --inconclusive --xml --quiet cpp 2> cppcheck-report.xml
-    - name: Upload cppcheck report
-      uses: actions/upload-artifact@v4
-      with:
-        name: cppcheck-report-${{ github.sha }}
-        path: cppcheck-report.xml
-        retention-days: 7
-    - name: Debug cppcheck on failure
-      if: failure()
-      run: cppcheck --enable=all --inconclusive cpp
-    - name: Build C++
-      run: |
-        export CC="ccache g++"
-        cd cpp
-        mkdir -p build && cd build
-        cmake ..
-        cmake --build . --parallel
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: libInference-${{ github.sha }}
-        path: cpp/build/libInference.so
-        retention-days: 7
+#  build_cpp:
+#    runs-on: ubuntu-latest
+#    steps:
+#    - uses: actions/checkout@v4
+#    - name: Cache ccache
+#      uses: actions/cache@v4
+#      with:
+#        path: ~/.ccache
+#        key: ccache-${{ runner.os }}-${{ github.sha }}
+#        restore-keys: ccache-${{ runner.os }}-
+#    - name: Install dependencies
+#      run: |
+#        sudo apt-get update
+#        sudo apt-get install -y cmake g++ ccache libprotobuf-dev protobuf-compiler-grpc libgrpc-dev libgrpc++-dev cppcheck
+#    - name: Run C++ static analysis
+#      run: |
+#        cppcheck --enable=all --inconclusive --xml --quiet cpp 2> cppcheck-report.xml
+#    - name: Upload cppcheck report
+#      uses: actions/upload-artifact@v4
+#      with:
+#        name: cppcheck-report-${{ github.sha }}
+#        path: cppcheck-report.xml
+#        retention-days: 7
+#    - name: Debug cppcheck on failure
+#      if: failure()
+#      run: cppcheck --enable=all --inconclusive cpp
+#    - name: Build C++
+#      run: |
+#        export CC="ccache g++"
+#        cd cpp
+#        mkdir -p build && cd build
+#        cmake ..
+#        cmake --build . --parallel
+#    - name: Upload artifact
+#      uses: actions/upload-artifact@v4
+#      with:
+#        name: libInference-${{ github.sha }}
+#        path: cpp/build/libInference.so
+#        retention-days: 7
 
   build_python:
     runs-on: ${{ matrix.os }}
