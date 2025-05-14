@@ -64,10 +64,6 @@ jobs:
           cache: 'pip'
       - name: Clear pip cache
         run: pip cache purge
-      - name: Clean build directories
-        run: |
-            rm -rf ./patchedLibs/tensorflow-onnx-1.17.0/build
-            rm -rf ./patchedLibs/tensorflow-onnx-1.17.0/*.egg-info
       - name: List directory contents
         run: dir .\patchedLibs\tensorflow-onnx-1.17.0 /s
       - name: Install dependencies
