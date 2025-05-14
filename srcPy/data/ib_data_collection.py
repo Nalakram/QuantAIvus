@@ -1,15 +1,19 @@
 import asyncio
 from asyncio import Semaphore
+from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional
+
 import pandas as pd
 from ib_insync import Stock, util, IB, BarData
+
+from srcPy.utils.config import config
+from srcPy.utils.exceptions import IBConnectionError, DataFetchError
 from srcPy.utils.logger import logger
 from srcPy.utils.validators import validate_symbol, validate_date
-from srcPy.utils.exceptions import IBConnectionError, DataFetchError
-from srcPy.utils.config import config
-from pathlib import Path
-from datetime import datetime
-import pytz
+
+
+# import pytz
 
 class NoDataError(DataFetchError):
     """Raised when no data is returned for a valid symbol."""
