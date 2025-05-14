@@ -68,6 +68,7 @@ setup(
     extras_require={"test": ["pytest", "pytest-cov", "graphviz", "parameterized", "pyyaml", "timeout-decorator",],},
     cmdclass=cmdclass,
     packages=['tf2onnx'],
+    package_dir={'': 'src'},
     license='Apache License v2.0',
     author='ONNX',
     author_email='onnx-technical-discuss@lists.lfaidata.foundation',
