@@ -1,0 +1,2 @@
+include README.md LICENSE
+recursive-include pandas_ta/utils/data *.csv
