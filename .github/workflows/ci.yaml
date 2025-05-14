@@ -62,10 +62,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-      - name: Clear pip cache
-        run: pip cache purge
-      - name: List directory contents
-        run: dir .\patchedLibs\tensorflow-onnx-1.17.0 /s
       - name: Install dependencies
         run: pip install -r srcPy/requirementsFreeze.txt
       - name: Install test tools
