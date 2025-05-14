@@ -1,4 +1,5 @@
 import logging
+
 import structlog
 
 # 1) Set up the root stdlib logger so that structlog can hook into it.

@@ -48,7 +48,7 @@ eventkit
 
 # Optional: For hyperparameter tuning
 keras-tuner>=1.4
-optuna>=3.1  # Uncommented as optionalib_insync==0.9.70 
+optuna>=3.1  # Uncommented as optionalib_insync==0.9.70
 
 # Additional dependencies for new features
 xgboost>=2.1.0

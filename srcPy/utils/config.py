@@ -2,12 +2,11 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Dict, Any
-from typing import List
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 import yaml
-from jsonschema import validate, ValidationError as SchemaValidationError
+from jsonschema import ValidationError as SchemaValidationError
+from jsonschema import validate
 from pydantic import BaseModel, ValidationError
 
 from srcPy.utils.exceptions import ConfigValidationError

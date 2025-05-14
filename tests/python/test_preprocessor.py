@@ -1,8 +1,10 @@
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 from preprocessor import Preprocessor
+
 from srcPy.utils.exceptions import DataValidationError
+
 
 @pytest.fixture
 def sample_df():

@@ -3,12 +3,11 @@ from typing import Iterator
 
 from ib_insync import IB
 from pydantic import BaseModel
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from srcPy.utils.config import config
 from srcPy.utils.exceptions import IBConnectionError
 from srcPy.utils.logger import logger
-
 
 
 class IBConfig(BaseModel):

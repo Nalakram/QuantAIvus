@@ -1,10 +1,14 @@
-from . import path_setup
-import pytest
+from unittest.mock import MagicMock, Mock
+
 import mlflow
 import pandas as pd
-from unittest.mock import MagicMock, Mock
-import srcPy.data.ib_data_collection as ibdc
+import pytest
 from ib_insync import IB
+
+import srcPy.data.ib_data_collection as ibdc
+
+from . import path_setup
+
 
 @pytest.fixture(autouse=True)
 def no_file_cache(monkeypatch, tmp_path):
@@ -52,7 +56,7 @@ def mock_config():
             'format_date': 1
         }
     }
-    
+
 class DummyMLflowRun:
     def __init__(self):
         self.metrics = {}
@@ -72,7 +76,7 @@ def mlflow_mock(monkeypatch):
     monkeypatch.setattr(mlflow, "start_run", lambda **kwargs: None)
     monkeypatch.setattr(mlflow, "end_run", lambda **kwargs: None)
     return dummy
-    
+
 @pytest.fixture(autouse=True, scope="session")
 def env_api_keys(monkeypatch):
     monkeypatch.setenv("INFLUXDB_TOKEN", "fake_token")

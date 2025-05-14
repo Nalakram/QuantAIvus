@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from pandas.tseries.holiday import USFederalHolidayCalendar
 from prometheus_client import Gauge
+
 # from pyod.models.ecod import ECOD
 from sklearn.ensemble import IsolationForest
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer

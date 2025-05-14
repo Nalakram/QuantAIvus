@@ -1,10 +1,23 @@
-import pytest
-import pandas as pd
 import asyncio
 from unittest.mock import AsyncMock
+
+import pandas as pd
+import pytest
 from aioresponses import aioresponses
-from data_loader import CSVLoader, TwitterLoader, AlpacaStreamLoader, ESGLoader, FREDLoader, BloombergLoader, WeatherLoader, InfluxDBLoader, build_loader
+from data_loader import (
+    AlpacaStreamLoader,
+    BloombergLoader,
+    CSVLoader,
+    ESGLoader,
+    FREDLoader,
+    InfluxDBLoader,
+    TwitterLoader,
+    WeatherLoader,
+    build_loader,
+)
+
 from srcPy.utils.exceptions import DataFetchError, IBConnectionError, NoDataError
+
 
 def test_csv_loader_happy_path(sample_csv, mocker):
     mock_log_metric = mocker.patch("mlflow.log_metric")
