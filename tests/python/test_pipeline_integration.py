@@ -1,9 +1,11 @@
-import pytest
-import pandas as pd
 import asyncio
-from data_loader import CSVLoader, AlpacaStreamLoader
-from data_cleaning import DataCleaner, StreamingCleanerPipeline, MissingImputer
+
+import pandas as pd
+import pytest
+from data_cleaning import DataCleaner, MissingImputer, StreamingCleanerPipeline
+from data_loader import AlpacaStreamLoader, CSVLoader
 from preprocessor import Preprocessor
+
 
 def test_end_to_end_pipeline(sample_csv, mocker):
     mocker.patch("mlflow.start_run")

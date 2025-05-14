@@ -1,8 +1,11 @@
-import pytest
 import json
-from srcPy.data.ib_api import ib_connection, IBConnectionError
+
+import pytest
+
+from srcPy.data.ib_api import IBConnectionError, ib_connection
 from srcPy.utils.config import config
 from srcPy.utils.logger import logger
+
 
 @pytest.mark.asyncio
 async def test_ib_connection_success(mock_ib, mock_config, monkeypatch):

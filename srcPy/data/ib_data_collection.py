@@ -5,13 +5,12 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import pandas as pd
-from ib_insync import Stock, util, IB, BarData
+from ib_insync import IB, BarData, Stock, util
 
 from srcPy.utils.config import config
-from srcPy.utils.exceptions import IBConnectionError, DataFetchError
+from srcPy.utils.exceptions import DataFetchError, IBConnectionError
 from srcPy.utils.logger import logger
-from srcPy.utils.validators import validate_symbol, validate_date
-
+from srcPy.utils.validators import validate_date, validate_symbol
 
 # import pytz
 
@@ -69,6 +68,7 @@ def _bars_to_df(bars: List[BarData]) -> pd.DataFrame:
     except IBConnectionError:
         raise
     except Exception as e:
+        logger.error("Data conversion error", error=str(e))
         raise DataFetchError(f"Failed to convert bars to DataFrame: {str(e)}") from e
 
 

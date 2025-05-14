@@ -1,7 +1,9 @@
 import pytest
 import yaml
-from jsonschema.exceptions import ValidationError, ConfigValidationError
+from jsonschema.exceptions import ConfigValidationError, ValidationError
+
 from srcPy.utils.config import get_config, load_config  # Assuming these exist
+
 
 def test_load_config_valid(tmp_path):
     config_content = """

@@ -1,9 +1,10 @@
 import asyncio
 import json
 from pathlib import Path
+
+import pandas as pd
 import pyarrow
 import pytest
-import pandas as pd
 
 print(pyarrow.__version__)
 df = pd.DataFrame({"a": [1, 2]})
@@ -12,6 +13,7 @@ print(pd.read_parquet("test.parquet"))
 ORIGINAL_READ_PARQUET = pd.read_parquet
 ORIGINAL_TO_PARQUET = pd.DataFrame.to_parquet
 from unittest.mock import Mock
+
 import srcPy.data.ib_data_collection as ibdc
 from srcPy.utils.exceptions import DataFetchError, IBConnectionError, NoDataError
 

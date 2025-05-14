@@ -13,7 +13,7 @@ from requests_cache import CachedSession
 from requests_ratelimiter import LimiterSession
 
 from srcPy.utils.config import get_config
-from srcPy.utils.exceptions import IBConnectionError, DataFetchError, NoDataError
+from srcPy.utils.exceptions import DataFetchError, IBConnectionError, NoDataError
 
 config = get_config()
 logger = logging.getLogger(__name__)
@@ -287,8 +287,17 @@ class ESGLoader(APIDataLoader):
 
     async def load_data(self, company_ids=None):
         company_ids = company_ids or ["AAPL", "MSFT"]  # Default companies
-        queries = [{'name': 'company_score', 'params': {'id': cid,
-                                                        'version': self.endpoints.default_params.version}} for cid in company_ids]
+        queries = [
+            {
+                "name": "company_score",
+                "params": {
+                    "id": cid,
+                    "version": self.endpoints.default_params.version,
+                },
+            }
+            for cid in company_ids
+        ]
+
         return await super().load_data(queries)
 
 

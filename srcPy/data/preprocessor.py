@@ -1,8 +1,10 @@
 import logging
-import pandas as pd
+
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+import pandas as pd
 import pandas_ta as ta
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
 from srcPy.utils.config import get_config
 from srcPy.utils.exceptions import DataValidationError
 
@@ -125,8 +127,10 @@ class Preprocessor:
         if self.technical_indicators.bollinger_bands and self.technical_indicators.bollinger_bands.enabled:
             bb = ta.bbands(df['close'], length=self.technical_indicators.bollinger_bands.window,
                            std=self.technical_indicators.bollinger_bands.num_std)
-            df['bb_upper'] = bb[f'BBU_{self.technical_indicators.bollinger_bands.window}_{self.technical_indicators.bollinger_bands.num_std}']
-            df['bb_lower'] = bb[f'BBL_{self.technical_indicators.bollinger_bands.window}_{self.technical_indicators.bollinger_bands.num_std}']
+            df['bb_upper'] = bb[f'BBU_{self.technical_indicators.bollinger_bands.window}_{
+                self.technical_indicators.bollinger_bands.num_std}']
+            df['bb_lower'] = bb[f'BBL_{self.technical_indicators.bollinger_bands.window}_{
+                self.technical_indicators.bollinger_bands.num_std}']
             if self.technical_indicators.bollinger_bands.fillna_method == "ffill":
                 df[['bb_upper', 'bb_lower']] = df[['bb_upper', 'bb_lower']].ffill()
             elif self.technical_indicators.bollinger_bands.fillna_method == "zero":
@@ -181,14 +185,34 @@ class Preprocessor:
         if self.scaler is None:
             logger.info("Skipping normalization", normalization_method=self.normalization)
             return df
+            
+        allowed = (
+            self.required_columns
+            + [
+                "rsi",
+                "macd",
+                "macd_signal",
+                "macd_hist",
+                "atr",
+                "vwap",
+                "bb_upper",
+                "bb_lower",
+                "sentiment",
+                "esg_score",
+            ]
+        )
 
         feature_cols = [
-            col for col in df.columns
-            if col not in ['ticker', 'symbol', 'date', 'timestamp']
-            and col in (self.required_columns + ['rsi', 'macd', 'macd_signal', 'macd_hist', 'atr', 'vwap', 'bb_upper', 'bb_lower', 'sentiment', 'esg_score'])
+            col
+            for col in df.columns
+            if col not in ["ticker", "symbol", "date", "timestamp"]
+            and col in allowed
         ]
         if not feature_cols:
-            logger.warning("No features to normalize", available_columns=list(df.columns))
+            logger.warning(
+                "No features to normalize",
+                available_columns=list(df.columns),
+            )
             return df
 
         try:
