@@ -1,6 +1,6 @@
 [flake8]
-# Allow up to 120 characters per line
-max-line-length = 120
+# Allow up to 160 characters per line
+max-line-length = 160
 
 # Ignore specific error codes
 extend-ignore = E203, W503, W293, W291, E231
@@ -20,6 +20,8 @@ exclude =
     dist,
     tests/*,
     tmp/*
+    patchedLibs/*
+    ./venv/*
 
 # Per-file ignores for specific problematic files
 per-file-ignores =

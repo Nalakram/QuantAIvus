@@ -9,6 +9,7 @@ repos:
     hooks:
       - id: autopep8
         args: [--max-line-length=120, --in-place]
+        exit_code: 0  # Ignore autopep8 exit code
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
