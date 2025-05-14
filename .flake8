@@ -20,6 +20,8 @@ exclude =
     dist,
     tests/*,
     tmp/*
+    patchedLibs/*
+    ./venv/*
 
 # Per-file ignores for specific problematic files
 per-file-ignores =
