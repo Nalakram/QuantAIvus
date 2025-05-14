@@ -67,7 +67,7 @@ jobs:
       - name: List directory contents
         run: dir .\patchedLibs\tensorflow-onnx-1.17.0 /s
       - name: Install dependencies
-        run: pip install -r srcPy/requirements.txt
+        run: pip install -r srcPy/requirementsFreeze.txt
       - name: Install test tools
         run: pip install flake8 pytest pytest-cov
       - name: Run tests
