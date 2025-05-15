@@ -8,6 +8,7 @@ pandas-ta @ file:./patchedLibs/pandas-ta-main-local
 joblib>=1.2
 scipy>=1.10  # Added for potential statistical functions
 mlflow>=2.0  # Added for test logging
+structlog
 
 # Visualization
 matplotlib>=3.6
