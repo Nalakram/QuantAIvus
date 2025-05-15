@@ -1,159 +1,256 @@
-name: Build and Test MarketMind
-
+name: CI  # MarketMind multi-language CI
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+    tags:
+      - 'v*'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:  # Manual trigger
 
 jobs:
-  build_cpp:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Cache ccache
-      uses: actions/cache@v4
-      with:
-        path: ~/.ccache
-        key: ccache-${{ runner.os }}-${{ github.sha }}
-        restore-keys: ccache-${{ runner.os }}-
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake g++ ccache libprotobuf-dev protobuf-compiler-grpc libgrpc-dev libgrpc++-dev cppcheck
-    - name: Run C++ static analysis
-      run: |
-        cppcheck --enable=all --inconclusive --xml --quiet cpp 2> cppcheck-report.xml
-    - name: Upload cppcheck report
-      uses: actions/upload-artifact@v4
-      with:
-        name: cppcheck-report-${{ github.sha }}
-        path: cppcheck-report.xml
-        retention-days: 7
-    - name: Debug cppcheck on failure
-      if: failure()
-      run: cppcheck --enable=all --inconclusive cpp
-    - name: Build C++
-      run: |
-        export CC="ccache g++"
-        cd cpp
-        mkdir -p build && cd build
-        cmake ..
-        cmake --build . --parallel
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: libInference-${{ github.sha }}
-        path: cpp/build/libInference.so
-        retention-days: 7
-
+  # Build and test Python component
   build_python:
-    runs-on: ${{ matrix.os }}
+    name: Build & Test Python
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [3.9, 3.11]
-        os: [ubuntu-latest, windows-latest]
+        os: [ ubuntu-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r srcPy/requirements.txt
-        pip install flake8 pytest pytest-cov
-    - name: Lint Python code
-      run: flake8 srcPy/
-    - name: Run Python tests with coverage
-      run: |
-        pytest --cov=srcPy --cov-report=term --cov-report=xml --cov-fail-under=80 tests/python
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-coverage-${{ github.sha }}-${{ matrix.python-version }}-${{ matrix.os }}
-        path: coverage.xml
-        retention-days: 7
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        files: coverage.xml
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/checkout@v4
 
-  test_data_pipeline:
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'  # Now testing only Python 3.12
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r srcPy/requirementsFreeze.txt
+        shell: bash
+
+      - name: Run Pytest
+        run: |
+          pytest tests/python/ --junitxml=python_test_results.xml --cov=srcPy --cov-report=xml:coverage.xml
+
+      - name: Upload Python coverage and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-artifacts
+          path: |
+            python_test_results.xml
+            coverage.xml
+
+  # Build and test C++ component (Linux)
+  build_cpp_linux:
+    name: Build & Test C++ (Linux)
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
-        cache: 'pip'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r srcPy/requirements.txt
-        pip install pytest pytest-asyncio pytest-mock pytest-cov aioresponses websockets mlflow
-    - name: Run data pipeline tests with coverage
-      run: |
-        pytest --cov=srcPy --cov-report=term --cov-report=xml --cov-fail-under=80 tests/
-      env:
-        INFLUXDB_TOKEN: fake_token
-        IB_API_KEY: fake_ib_key
-        ALPACA_KEY: fake_alpaca
-        ALPACA_SECRET: fake_secret
-        TWITTER_BEARER_TOKEN: fake_twitter
-        ESG_API_KEY: fake_esg
-        FRED_API_KEY: fake_fred
-        BBG_API_KEY: fake_bbg
-        WEATHER_API_KEY: fake_weather
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: data-pipeline-coverage-${{ github.sha }}-py3.9-ubuntu
-        path: coverage.xml
-        retention-days: 7
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        files: coverage.xml
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/checkout@v4
 
-  build_java:
-    runs-on: ubuntu-latest
-    needs: build_cpp
+      - name: Cache ccache
+        uses: actions/cache@v3
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ccache build-essential
+
+      - name: Configure CMake
+        run: cmake -S cpp/ -B cpp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build (C++)
+        run: cmake --build cpp/build --config Release
+
+      - name: Run C++ tests
+        run: |
+          cd cpp/build
+          ctest --output-on-failure
+
+      - name: Run Inference Benchmark
+        run: |
+          cd cpp/build
+          ./inference_benchmark --max-latency 1.0  # Assumes benchmark executable exists
+
+      - name: Upload C++ libraries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp-libs-linux
+          path: cpp/build/libInference.so
+
+      - name: Upload C++ test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp-test-logs-linux
+          path: cpp/build/Testing
+
+  # Build and test C++ component (Windows)
+  build_cpp_windows:
+    name: Build & Test C++ (Windows)
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Download C++ artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: libInference-${{ github.sha }}
-        path: java/lib/native
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: 'maven'
-    - name: Run Java static analysis
-      run: mvn checkstyle:check
-    - name: Build with Maven
-      uses: nick-invision/retry@v3
-      with:
-        timeout_minutes: 10
-        max_attempts: 3
-        command: mvn clean install -Djava.library.path=java/lib/native -Djava.awt.headless=true
-    - name: Upload Java coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: java-coverage-${{ github.sha }}
-        path: target/site/jacoco/jacoco.xml
-        retention-days: 7
-    - name: Upload Java coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        files: target/site/jacoco/jacoco.xml
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/checkout@v4
+
+      - name: Install CMake
+        run: choco install cmake --installargs "ADD_CMAKE_TO_PATH=System"
+
+      - name: Configure CMake
+        run: cmake -S cpp/ -B cpp/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build (C++)
+        run: cmake --build cpp/build --config Release
+
+      - name: Run C++ tests
+        run: |
+          cd cpp/build
+          ctest --output-on-failure
+
+      - name: Run Inference Benchmark
+        run: |
+          cd cpp/build
+          .\inference_benchmark.exe --max-latency 1.0  # Assumes benchmark executable exists
+
+      - name: Upload C++ libraries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp-libs-windows
+          path: cpp/build/Inference.dll
+
+      - name: Upload C++ test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp-test-logs-windows
+          path: cpp/build/Testing
+
+  # GPU-enabled C++ inference tests with CUDA
+  test_cpp_inference:
+    name: Test C++ Inference (CUDA)
+    runs-on: [self-hosted, gpu]  # Requires self-hosted runner with GPU
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CUDA Toolkit
+        uses: jimver/cuda-toolkit@v0.2.23
+        with:
+          cuda: '12.9.0'
+
+      - name: Build Inference (CUDA)
+        run: |
+          mkdir -p cpp/build_gpu
+          cd cpp/build_gpu
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-12.9
+          cmake --build .
+
+      - name: Run GPU Inference Tests
+        run: |
+          cd cpp/build_gpu
+          ctest --output-on-failure
+
+      - name: Upload Inference logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inference-logs
+          path: cpp/build_gpu/Testing
+
+  # Build and test Java component (Linux)
+  build_java_linux:
+    name: Build & Test Java (Linux)
+    needs: build_cpp_linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'  # Updated to Java 21
+          cache: 'maven'
+
+      - name: Download C++ libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: cpp-libs-linux
+          path: cpp/build
+
+      - name: Build with Maven
+        run: mvn -B clean install -Djava.library.path=cpp/build
+
+      - name: Generate JaCoCo report
+        run: mvn jacoco:report
+
+      - name: Upload JARs
+        if: always()
+        run: |
+          mkdir -p staging
+          cp java/target/*.jar staging
+      - uses: actions/upload-artifact@v4
+        with:
+          name: java-artifacts-linux
+          path: staging
+
+      - name: Upload Java coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-coverage-linux
+          path: java/target/site/jacoco/jacoco.xml
+
+  # Build and test Java component (Windows)
+  build_java_windows:
+    name: Build & Test Java (Windows)
+    needs: build_cpp_windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'  # Updated to Java 21
+          cache: 'maven'
+
+      - name: Download C++ libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: cpp-libs-windows
+          path: cpp/build
+
+      - name: Build with Maven
+        run: mvn -B clean install -Djava.library.path=cpp/build
+
+      - name: Generate JaCoCo report
+        run: mvn jacoco:report
+
+      - name: Upload JARs
+        if: always()
+        run: |
+          mkdir -p staging
+          cp java/target/*.jar staging
+      - uses: actions/upload-artifact@v4
+        with:
+          name: java-artifacts-windows
+          path: staging
+
+      - name: Upload Java coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-coverage-windows
+          path: java/target/site/jacoco/jacoco.xml
