@@ -16,7 +16,7 @@ jobs:
     name: Build & Test Python
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [Ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -24,13 +24,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'  # Now testing only Python 3.12
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r srcPy/requirementsFreeze.txt
+          pip install -r srcPy/requirements.txt
         shell: bash
 
       - name: Run Pytest
@@ -64,10 +64,11 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ccache build-essential
+          sudo apt-get install -y cmake ccache build-essential gcc-13 g++-13
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13
 
       - name: Configure CMake
-        run: cmake -S cpp/ -B cpp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        run: cmake -S cpp/ -B cpp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_STANDARD=20
 
       - name: Build (C++)
         run: cmake --build cpp/build --config Release
@@ -79,15 +80,15 @@ jobs:
 
       - name: Run Inference Benchmark
         run: |
-          cd cpp/build
-          ./inference_benchmark --max-latency 1.0  # Assumes benchmark executable exists
+          cd cpp/build/bin
+          ./inference_benchmark --max-latency 1.0
 
       - name: Upload C++ libraries
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cpp-libs-linux
-          path: cpp/build/libInference.so
+          path: cpp/build/bin/inference_benchmark
 
       - name: Upload C++ test logs
         if: always()
@@ -104,10 +105,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install CMake
-        run: choco install cmake --installargs "ADD_CMAKE_TO_PATH=System"
+        run: choco install cmake visualstudio2022buildtools --installargs "ADD_CMAKE_TO_PATH=System"
 
       - name: Configure CMake
-        run: cmake -S cpp/ -B cpp/build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S cpp/ -B cpp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
 
       - name: Build (C++)
         run: cmake --build cpp/build --config Release
@@ -119,15 +120,15 @@ jobs:
 
       - name: Run Inference Benchmark
         run: |
-          cd cpp/build
-          .\inference_benchmark.exe --max-latency 1.0  # Assumes benchmark executable exists
+          cd cpp/build/bin
+          .\inference_benchmark.exe --max-latency 1.0
 
       - name: Upload C++ libraries
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cpp-libs-windows
-          path: cpp/build/Inference.dll
+          path: cpp/build/bin/inference_benchmark.exe
 
       - name: Upload C++ test logs
         if: always()
@@ -139,26 +140,47 @@ jobs:
   # GPU-enabled C++ inference tests with CUDA
   test_cpp_inference:
     name: Test C++ Inference (CUDA)
-    runs-on: [self-hosted, gpu]  # Requires self-hosted runner with GPU
+    runs-on: [self-hosted, gpu]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install CUDA Toolkit
-        uses: jimver/cuda-toolkit@v0.2.23
-        with:
-          cuda: '12.9.0'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ccache gcc-13 g++-13
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13
+          sudo apt-get install -y nvidia-driver-550
+          wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+          sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+          wget https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda-repo-ubuntu2204-12-9-local_12.9.0-550.54.14-1_amd64.deb
+          sudo dpkg -i cuda-repo-ubuntu2204-12-9-local_12.9.0-550.54.14-1_amd64.deb
+          sudo cp /var/cuda-repo-ubuntu2204-12-9-local/cuda-*-keyring.gpg /usr/share/keyrings/
+          sudo apt-get update
+          sudo apt-get install -y cuda-toolkit-12-9
+        if: runner.os == 'Linux'
+
+      - name: Set CUDA environment variables
+        run: |
+          echo "PATH=/usr/local/cuda-12.9/bin:$PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=/usr/local/cuda-12.9/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        if: runner.os == 'Linux'
 
       - name: Build Inference (CUDA)
         run: |
           mkdir -p cpp/build_gpu
           cd cpp/build_gpu
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-12.9
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-12.9 -DCMAKE_CXX_STANDARD=20
           cmake --build .
 
       - name: Run GPU Inference Tests
         run: |
           cd cpp/build_gpu
           ctest --output-on-failure
+
+      - name: Run Inference Benchmark (CUDA)
+        run: |
+          cd cpp/build_gpu/bin
+          ./inference_benchmark --max-latency 1.0
 
       - name: Upload Inference logs
         if: always()
@@ -179,17 +201,17 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'  # Updated to Java 21
+          java-version: '21'
           cache: 'maven'
 
       - name: Download C++ libraries
         uses: actions/download-artifact@v4
         with:
           name: cpp-libs-linux
-          path: cpp/build
+          path: cpp/build/bin
 
       - name: Build with Maven
-        run: mvn -B clean install -Djava.library.path=cpp/build
+        run: mvn -B clean install -Djava.library.path=cpp/build/bin
 
       - name: Generate JaCoCo report
         run: mvn jacoco:report
@@ -223,17 +245,17 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'  # Updated to Java 21
+          java-version: '21'
           cache: 'maven'
 
       - name: Download C++ libraries
         uses: actions/download-artifact@v4
         with:
           name: cpp-libs-windows
-          path: cpp/build
+          path: cpp/build/bin
 
       - name: Build with Maven
-        run: mvn -B clean install -Djava.library.path=cpp/build
+        run: mvn -B clean install -Djava.library.path=cpp/build/bin
 
       - name: Generate JaCoCo report
         run: mvn jacoco:report
