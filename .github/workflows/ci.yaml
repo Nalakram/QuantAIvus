@@ -1,4 +1,4 @@
-name: CI  # MarketMind multi-language CI
+name: Build, Test, and Deploy MarketMind  # MarketMind multi-language CI
 on:
   push:
     branches:
@@ -190,48 +190,51 @@ jobs:
           path: cpp/build_gpu/Testing
 
   # Build and test Java component (Linux)
-  build_java_linux:
-    name: Build & Test Java (Linux)
-    needs: build_cpp_linux
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+build_java_linux:
+  name: Build & Test Java (Linux)
+  needs: build_cpp_linux
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+        cache: 'maven'
 
-      - name: Download C++ libraries
-        uses: actions/download-artifact@v4
-        with:
-          name: cpp-libs-linux
-          path: cpp/build/bin
+    - name: Download C++ libraries
+      uses: actions/download-artifact@v4
+      with:
+        name: cpp-libs-linux
+        path: cpp/build/bin
 
-      - name: Build with Maven
-        run: mvn -B clean install -Djava.library.path=cpp/build/bin
+    - name: Build with Maven
+      run: mvn -B clean install -Djava.library.path=cpp/build/bin
 
-      - name: Generate JaCoCo report
-        run: mvn jacoco:report
+    - name: Debug - List target directory contents
+      run: ls -la java/target/ || echo "java/target/ directory does not exist"
 
-      - name: Upload JARs
-        if: always()
-        run: |
-          mkdir -p staging
-          cp java/target/*.jar staging
-      - uses: actions/upload-artifact@v4
-        with:
-          name: java-artifacts-linux
-          path: staging
+    - name: Generate JaCoCo report
+      run: mvn jacoco:report
 
-      - name: Upload Java coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-coverage-linux
-          path: java/target/site/jacoco/jacoco.xml
+    - name: Upload JARs
+      if: always()
+      run: |
+        mkdir -p staging
+        cp java/target/*.jar staging || echo "No JAR files found in java/target/"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: java-artifacts-linux
+        path: staging
+
+    - name: Upload Java coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: java-coverage-linux
+        path: java/target/site/jacoco/jacoco.xml
 
   # Build and test Java component (Windows)
   build_java_windows:
