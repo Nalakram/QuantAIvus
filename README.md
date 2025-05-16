@@ -135,6 +135,7 @@ For a detailed directory structure, see [MarketMind Directory Structure.md](Mark
 <details>
 <summary>Click to expand</summary>
 <pre>
+- **1.6.1 (2025-05-16)**: Fixed CMake issues for `inference_benchmark`, added C++20 compatibility with `std::span`, optimized CI/CD with `requirementsFreeze.txt`, added `structlog`, `pykalman`, and `influxdb-client` dependencies, configured `setup.cfg` for `pandas-ta` test discovery, and fixed Java JAR packaging with `maven-jar-plugin`
 - **1.6.0 (2025-05-09)**: Added alternative data, ensemble models, trading strategies, risk management, backtesting, simulation, and deployment configurations. Updated project structure for HFT. Transitioned GUI from Swing to JavaFX, updated Java to 21, expanded Java package structure, and enhanced CI/CD with Codecov for Java coverage.
 - **1.5.4 (2025-05-06)**: Fixed test failures in `test_ib_data_collection.py` by correcting `NoDataError` imports and `TestAsyncHelpers` test placement. Resolved `tensorflow-onnx` test discovery errors by setting `testpaths = tests/python` in `pytest.ini`. Ensured all 26 tests pass.
 - **1.5.3 (2025-05-05)**: Configured pytest-asyncio with asyncio_default_fixture_loop_scope = function to resolve PytestDeprecationWarning; updated run_tests.bat to suppress eventkit warning; fixed test imports.

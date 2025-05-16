@@ -7,7 +7,7 @@
 # ===========================================================================
 
 version: "1.1"                                   # Config file version
-schema_uri: "./config_schema.json"               # Path to JSON‑Schema for CI
+schema_uri: config_schema.json
 
 # 1. PRIMARY DATA SOURCE
 
