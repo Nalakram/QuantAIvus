@@ -14,7 +14,10 @@ jobs:
   # Build and test Python component
   build_python:
     name: Build & Test Python
-    runs-on: [self-hosted, windows]
+    runs-on: [ self-hosted, "${{ matrix.os }}" ]
+    strategy:
+      matrix:
+        os: [windows, linux]  # Your current runner
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -43,7 +46,7 @@ jobs:
   # Build and test C++ component
   build_cpp:
     name: Build & Test C++
-    runs-on: [self-hosted, ${{ matrix.os }}, ${{ matrix.compute }}]
+    runs-on: [ self-hosted, "${{ matrix.os }}", "${{ matrix.version }}" ]
     strategy:
       matrix:
         os: [windows, linux]  # Your current runner
@@ -144,7 +147,7 @@ jobs:
   build_java:
     name: Build & Test Java
     needs: build_cpp
-    runs-on: ${{ matrix.os }}
+    runs-on: [ self-hosted, "${{ matrix.os }}" ]
     strategy:
       matrix:
         os: [windows, linux]  # Your current runner
