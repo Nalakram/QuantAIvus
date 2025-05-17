@@ -16,8 +16,8 @@ jobs:
     name: Build & Test Python
     strategy:
       matrix:
-        os: [ windows, linux ]  # Your current runner; add 'linux' when you set up a Linux runner
-    runs-on: [ self-hosted, ${ { matrix.os } } ]
+        os: [windows, linux]  # Your current runner
+    runs-on: [self-hosted, ${{ matrix.os }}]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -46,10 +46,10 @@ jobs:
   # Build and test C++ component
   build_cpp:
     name: Build & Test C++
-    runs-on: [ self-hosted, ${ { matrix.os } }, ${ { matrix.compute } } ]
+    runs-on: [self-hosted, ${{ matrix.os }}, ${{ matrix.compute }}]
     strategy:
       matrix:
-        os: [ windows ]  # Your current runner; add 'linux' when you set up a Linux runner
+        os: [windows, linux]  # Your current runner
         compute: [ cpu, gpu ]
         include:
           - compute: gpu
@@ -148,10 +148,10 @@ jobs:
   build_java:
     name: Build & Test Java
     needs: build_cpp
-    runs-on: [ self-hosted, ${ { matrix.os } } ]
+    runs-on: [self-hosted, ${{ matrix.os }}]
     strategy:
       matrix:
-        os: [ windows ]  # Your current runner; add 'linux' when you set up a Linux runner
+        os: [windows, linux]  # Your current runner
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK
@@ -204,4 +204,3 @@ jobs:
         with:
           name: java-coverage-${{ matrix.os }}
           path: java/target/site/jacoco/jacoco.xml
-          
