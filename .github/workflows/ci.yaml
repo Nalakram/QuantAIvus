@@ -16,7 +16,7 @@ jobs:
     name: Build & Test Python
     strategy:
       matrix:
-        os: [windows]  # Your current runner
+        os: [windows]
     runs-on: [self-hosted, ${{ matrix.os }}]
     steps:
       - uses: actions/checkout@v4
