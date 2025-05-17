@@ -14,10 +14,10 @@ jobs:
   # Build and test Python component
   build_python:
     name: Build & Test Python
+    runs-on: [self-hosted, ${{ matrix.os }}]
     strategy:
       matrix:
         os: [ "windows-latest" ]
-    runs-on: [self-hosted, ${{ matrix.os }}]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
