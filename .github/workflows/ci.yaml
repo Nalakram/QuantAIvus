@@ -14,10 +14,7 @@ jobs:
   # Build and test Python component
   build_python:
     name: Build & Test Python
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ "windows-latest" ]
+    runs-on: [self-hosted, windows]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -46,7 +43,7 @@ jobs:
   # Build and test C++ component
   build_cpp:
     name: Build & Test C++
-    runs-on: [${{ matrix.os }}, ${{ matrix.compute }}]
+    runs-on: [self-hosted, ${{ matrix.os }}, ${{ matrix.compute }}]
     strategy:
       matrix:
         os: [windows, linux]  # Your current runner
@@ -65,7 +62,6 @@ jobs:
             sudo apt-get install -y cmake
           else
             choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
-          fi
         shell: bash
       - name: Build C++ Backend
         run: |
@@ -171,7 +167,6 @@ jobs:
             mvn -B clean install -Djava.library.path=cpp/build/bin
           else
             mvn -B clean install -Djava.library.path=cpp\build\bin
-          fi
         shell: bash
       - name: Debug - List Target Directory Contents
         run: |
@@ -179,7 +174,6 @@ jobs:
             ls -la java/target/ || echo "java/target/ directory does not exist"
           else
             dir java\target || echo "java\target\ directory does not exist"
-          fi
         shell: bash
       - name: Generate JaCoCo Report
         run: mvn jacoco:report
