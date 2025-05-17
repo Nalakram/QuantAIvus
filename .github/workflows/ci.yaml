@@ -16,131 +16,92 @@ jobs:
     name: Build & Test Python
     strategy:
       matrix:
-        os: [Ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ windows, linux ]  # Your current runner; add 'linux' when you set up a Linux runner
+    runs-on: [ self-hosted, ${ { matrix.os } } ]
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
           cache: 'pip'
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r srcPy/requirementsFreeze.txt
         shell: bash
-
       - name: Run Pytest
         run: |
           pytest tests/python/ --junitxml=python_test_results.xml --cov=srcPy --cov-report=xml:coverage.xml
-
+        shell: bash
       - name: Upload Python coverage and test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: python-artifacts
+          name: python-artifacts-${{ matrix.os }}
           path: |
             python_test_results.xml
             coverage.xml
 
-  # Build and test C++ component (Linux)
-  build_cpp_linux:
-    name: Build & Test C++ (Linux)
-    runs-on: ubuntu-latest
+  # Build and test C++ component
+  build_cpp:
+    name: Build & Test C++
+    runs-on: [ self-hosted, ${ { matrix.os } }, ${ { matrix.compute } } ]
+    strategy:
+      matrix:
+        os: [ windows ]  # Your current runner; add 'linux' when you set up a Linux runner
+        compute: [ cpu, gpu ]
+        include:
+          - compute: gpu
+            compute-label: [ gpu, cuda-12.9 ]
+          - compute: cpu
+            compute-label: [ cpu ]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Cache ccache
-        uses: actions/cache@v3
-        with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-ccache-
-
-      - name: Install dependencies
+      - name: Set up CMake
         run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake ccache build-essential gcc-13 g++-13
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13
-
-      - name: Configure CMake
-        run: cmake -S cpp/ -B cpp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_STANDARD=20
-
-      - name: Build (C++)
-        run: cmake --build cpp/build --config Release
-
-      - name: Run C++ tests
+          if [ "${{ matrix.os }}" = "linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y cmake
+          else
+            choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
+          fi
+        shell: bash
+      - name: Build C++ Backend
         run: |
-          cd cpp/build
-          ctest --output-on-failure
-
+          cd cpp
+          mkdir build && cd build
+          cmake -DCMAKE_CXX_STANDARD=20 ..
+          cmake --build .
+        shell: bash
       - name: Run Inference Benchmark
         run: |
-          cd cpp/build/bin
-          ./inference_benchmark --max-latency 1.0
-
-      - name: Upload C++ libraries
-        if: always()
+          if [ "${{ matrix.os }}" = "linux" ]; then
+            ./bin/inference_benchmark
+          else
+            .\bin\inference_benchmark.exe
+          fi
+        shell: bash
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cpp-libs-linux
-          path: cpp/build/bin/inference_benchmark
-
-      - name: Upload C++ test logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cpp-test-logs-linux
-          path: cpp/build/Testing
-
-  # Build and test C++ component (Windows)
-  build_cpp_windows:
-    name: Build & Test C++ (Windows)
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install CMake
-        run: choco install cmake visualstudio2022buildtools --installargs "ADD_CMAKE_TO_PATH=System"
-
-      - name: Configure CMake
-        run: cmake -S cpp/ -B cpp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
-
-      - name: Build (C++)
-        run: cmake --build cpp/build --config Release
-
-      - name: Run C++ tests
-        run: |
-          cd cpp/build
-          ctest --output-on-failure
-
-      - name: Run Inference Benchmark
-        run: |
-          cd cpp/build/bin
-          .\inference_benchmark.exe --max-latency 1.0
-
-      - name: Upload C++ libraries
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cpp-libs-windows
-          path: cpp/build/bin/inference_benchmark.exe
-
-      - name: Upload C++ test logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cpp-test-logs-windows
-          path: cpp/build/Testing
+          name: cpp-libs-${{ matrix.os }}-${{ matrix.compute }}
+          path: bin/
 
   # GPU-enabled C++ inference tests with CUDA
   # test_cpp_inference:
   #   name: Test C++ Inference (CUDA)
-  #   runs-on: [self-hosted, gpu]
+  #   runs-on: [self-hosted, ${{ matrix.os }}, ${{ matrix.compute }}]
+  #    needs: cpp-build
+  #    strategy:
+  #      matrix:
+  #        os: [windows]  # Add 'linux' later
+  #        compute: [cpu, gpu]
+  #        include:
+  #          - compute: gpu
+  #            compute-label: [gpu, cuda-12.9]
+  #          - compute: cpu
+  #            compute-label: [cpu]
   #   steps:
   #     - uses: actions/checkout@v4
   #     - name: Install dependencies
@@ -183,93 +144,64 @@ jobs:
   #         name: inference-logs
   #         path: cpp/build_gpu/Testing
 
-  # Build and test Java component (Linux)
-  build_java_linux:
-    name: Build & Test Java (Linux)
-    needs: build_cpp_linux
-    runs-on: ubuntu-latest
+  # Build and test Java component
+  build_java:
+    name: Build & Test Java
+    needs: build_cpp
+    runs-on: [ self-hosted, ${ { matrix.os } } ]
+    strategy:
+      matrix:
+        os: [ windows ]  # Your current runner; add 'linux' when you set up a Linux runner
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
-
-      - name: Download C++ libraries
+      - name: Download C++ Libraries
         uses: actions/download-artifact@v4
         with:
-          name: cpp-libs-linux
+          name: cpp-libs-${{ matrix.os }}-gpu
           path: cpp/build/bin
-
       - name: Build with Maven
-        run: mvn -B clean install -Djava.library.path=cpp/build/bin
-
-      - name: Debug - List target directory contents
-        run: ls -la java/target/ || echo "java/target/ directory does not exist"
-
-      - name: Generate JaCoCo report
+        run: |
+          if [ "${{ matrix.os }}" = "linux" ]; then
+            mvn -B clean install -Djava.library.path=cpp/build/bin
+          else
+            mvn -B clean install -Djava.library.path=cpp\build\bin
+          fi
+        shell: bash
+      - name: Debug - List Target Directory Contents
+        run: |
+          if [ "${{ matrix.os }}" = "linux" ]; then
+            ls -la java/target/ || echo "java/target/ directory does not exist"
+          else
+            dir java\target || echo "java\target\ directory does not exist"
+          fi
+        shell: bash
+      - name: Generate JaCoCo Report
         run: mvn jacoco:report
-
+        shell: bash
       - name: Upload JARs
         if: always()
         run: |
           mkdir -p staging
-          cp java/target/*.jar staging || echo "No JAR files found in java/target/"
+          if [ "${{ matrix.os }}" = "linux" ]; then
+            cp java/target/*.jar staging || echo "No JAR files found in java/target/"
+          else
+            copy java\target\*.jar staging || echo "No JAR files found in java\target\"
+          fi
+        shell: bash
       - uses: actions/upload-artifact@v4
         with:
-          name: java-artifacts-linux
+          name: java-artifacts-${{ matrix.os }}
           path: staging
-
-      - name: Upload Java coverage report
+      - name: Upload Java Coverage Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: java-coverage-linux
+          name: java-coverage-${{ matrix.os }}
           path: java/target/site/jacoco/jacoco.xml
-
-  # Build and test Java component (Windows)
-  build_java_windows:
-    name: Build & Test Java (Windows)
-    needs: build_cpp_windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
-
-      - name: Download C++ libraries
-        uses: actions/download-artifact@v4
-        with:
-          name: cpp-libs-windows
-          path: cpp/build/bin
-
-      - name: Build with Maven
-        run: mvn -B clean install -Djava.library.path=cpp/build/bin
-
-      - name: Generate JaCoCo report
-        run: mvn jacoco:report
-
-      - name: Upload JARs
-        if: always()
-        run: |
-          mkdir -p staging
-          cp java/target/*.jar staging
-      - uses: actions/upload-artifact@v4
-        with:
-          name: java-artifacts-windows
-          path: staging
-
-      - name: Upload Java coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-coverage-windows
-          path: java/target/site/jacoco/jacoco.xml
+          

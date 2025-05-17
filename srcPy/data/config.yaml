@@ -264,8 +264,8 @@ security:
     audit_log: true
     retention_days: 90
     audit_frequency_days: 30
-  data_anonymization:
-    anonymize_pii: true
+    data_anonymization:
+      anonymize_pii: true
 
 # 8. MODEL & TRAINING SETTINGS
 
