@@ -46,7 +46,7 @@ jobs:
   # Build and test C++ component
   build_cpp:
     name: Build & Test C++
-    runs-on: [self-hosted, ${{ matrix.os }}, ${{ matrix.compute }}]
+    runs-on: [${{ matrix.os }}, ${{ matrix.compute }}]
     strategy:
       matrix:
         os: [windows, linux]  # Your current runner
@@ -148,7 +148,7 @@ jobs:
   build_java:
     name: Build & Test Java
     needs: build_cpp
-    runs-on: [self-hosted, ${{ matrix.os }}]
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [windows, linux]  # Your current runner
